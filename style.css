@@ -1,29 +1,71 @@
 body {
     margin: 0 auto;
     /* Puedes cambiar el color de fondo (background-color) si lo deseas */
-    background-color: rgb(237, 203, 169);
+    background-color: rgb(255, 255, 255);
     max-width: 80%;
     min-width: 500px;
     text-align: center;
 }
 
-.case h2 {
-    /* Puedes cambiar el color de fondo (background-color) si lo deseas */
-    background-color: #e0a45e;
-    padding: 10px;
-    margin: 10px;
+h1{
+    font-family: "Lato";
+    color: #7596e3;
+
 }
 
-.response {
+.h2{
+    font-family: "Lato";
     text-align: start;
+    color:  rgb(131, 112, 102);
     border: solid gray 2px;
     padding: 10px;
     margin: 10px;
 }
 
+.h4{
+    font-family: "Lato";
+    text-align: start;
+    color: gray;
+    border: solid gray 2px;
+    padding: 10px;
+    margin: 10px;
+}
+
+.case h2 {
+    /* Puedes cambiar el color de fondo (background-color) si lo deseas */
+    background-color: #7596e3;
+    color:  white;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 20px;
+    font-family: "Lato";
+
+    
+}
+
+.case h4 {
+    /* Puedes cambiar el color de fondo (background-color) si lo deseas */
+    border-radius: 20px;
+
+
+    
+}
+
+.response {
+    font-family: "Lato";
+    text-align: start;
+    color: gray;
+
+    border: solid gray 2px;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 20px;
+
+}
+
 .response h5 {
     margin: 0px;
-    color: rgb(57, 57, 57);
+    color: rgb(131, 112, 102);
 }
 
 .response h4 {
@@ -35,6 +77,7 @@ body {
     display: inline-flex;
     justify-content: center;
     margin: 10px;
+
 }
 
 img{
@@ -50,3 +93,10 @@ img{
     padding: 5px;
     font-weight: bolder;
 }
+
+.cod {
+    font-family: "Nanum Gothic Coding", monospace;
+    font-style: normal;
+    font-weight:bolder;
+    font-size: 15px; /* Puedes ajustar el tamaño de fuente aquí */
+  }
