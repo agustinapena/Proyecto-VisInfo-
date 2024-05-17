@@ -28,9 +28,10 @@
             <div class="response">
                 <h4>Contexto de la situación y la naturaleza de los datos</h4>
                 <!-- Puedes agregar los P que sean necesarios -->
-                <p>Según National Geographic, los terremotos corresponden al "resultado del lento movimiento de las placas tectónicas que generan tensiones en la corteza terrestre y el manto superior.
-                    La relevancia de los terremotos es significativa, dado que pueden causar devastación a gran escala, incluyendo pérdida de vidas, daños estructurales y económicos, y trastornos en servicios esenciales como el agua, la electricidad y el transporte. "</p>
-                <p>En este contexto, para nuestra visualización se utilizará un dataset de Terremotos. Este, muestra distintos terremotos que han ocurrido a nivel global entre los años 2020 y 2021. Este conjunto de datos tiene información acerca de las siguientes variables, las cuales corresponden a métricas tanto cuantitativas como categóricas:</p>
+                <p>Según National Geographic, los terremotos corresponden al "resultado del lento movimiento de las placas tectónicas que generan tensiones en la corteza terrestre y el manto superior."
+                    <p>
+                    La relevancia de los terremotos es significativa no solo porque es una variable a considerar en decisiones de contrucción y urbanismo, si no también porque pueden causar devastación a gran escala, incluyendo pérdida de vidas, daños económicos, y trastornos en servicios esenciales como el agua, la electricidad y el transporte. </p>
+                <p>En este contexto, para nuestra visualización se utilizará un dataset de terremotos y sismos. Este, muestra distintos sismos que han ocurrido a nivel global entre los años 2020 y 2021. Este conjunto de datos tiene información acerca de las siguientes variables, las cuales corresponden a métricas tanto cuantitativas como categóricas:</p>
                     <ol>
                         <li><strong><span class="cod">time:</span></strong> <p> Indica fecha y hora exacta en la que ocurrió el sismo</li>
                         <li><strong><span class="cod">latitude:</span></strong> <p>Indica la distancia angular desde el ecuador de donde ocurrió el sismo</li>
@@ -146,25 +147,105 @@
             <div class="response">
                 <h4>Decisiones de diseño relacionadas a la primera tarea visual</h4>
                 <h4>Respuesta:</h4>
-                <!-- Puedes agregar los P que sean necesarios -->
-                <p>Modifica solo este texto (no el de arriba) para poner tu respuesta</p>
+                <p>
+                    Gráfico de barras agrupado que muestre las frecuencias de sismos ocurridos según diferentes rangos de magnitud (mag).
+                    En el eje x se posicionará la magnitud agrupada en intervalos. En el eje y se posicionará la frecuencia de sismos con magnitudes dentro de estos intervalos.
+                </p>
+                </p>
+                <ol>
+                    <li>
+                        Por cada intervalo habrá 6 barras representadas con rectángulos (<span class="bold-color">marca bidimensional</span>): <span class="bold-color">Idiom visual</span>
+                        <ol type="a" class="indent">
+                        </p>
+                            <li>
+                                La altura de la barra/rectángulo se utilizará como <span class="bold-color">canal</span> para representar las frecuencias. Esto se realiza principalmente por coherencia y convención general existente en cuánto a gráficos de barra.
+                            </li>
+                        </p>
+                            <li>
+                                Se utiliza el color de las barras como <span class="bold-color">canal</span> para separar las frecuencias según el tipo de magnitud (magType). Esto se realiza con el fin de que la comparación sea acertada ya que no sería correcto comparar frecuencias considerando que las magnitudes utilizadas son distintas.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                    </p>
+                        Botones de selección de tipo de magnitud (magType): <span class="bold-color">Idiom de interacción</span>
+                        <p class="indent">
+                            Se permite la selección de múltiples tipos de magnitud con el fin de que se desplieguen solamente las barras correspondientes a la o las magnitudes seleccionadas. Además, esta selección estará coordinada con la visualización 2 y 3 de modo que en esta se muestren solo aquellos sismos que utilizan el o los tipos de magnitud seleccionada.
+                        </p>
+                    </li>
+                </ol>
             </div>
             <div class="response">
                 <h4>Decisiones de diseño relacionadas a la segunda tarea visual</h4>
                 <h4>Respuesta:</h4>
                 <!-- Puedes agregar los P que sean necesarios -->
-                <p>Modifica solo este texto (no el de arriba) para poner tu respuesta</p>
+                <p>
+                    Mapa geográfico de puntos que muestren los sismos que han ocurrido en diferentes puntos geográficos en base a la latitud (latitude) y longitud (longitude).
+                </p>
+                <ol>
+                    <li>
+                        Sismos como círculos (<span class="bold-color">marca bidimensional</span>): <span class="bold-color">Idiom visual</span>
+                        <ol type="a" class="indent">
+                        </p>
+                            <li>
+                                El tamaño del círculo se utilizará como <span class="bold-color">canal</span> para representar la magnitud de dicho sismo. Esto se realiza con el fin de que el usuario pueda dimensionar de manera más intuitiva cuáles han sido aquellos sismos de más alta magnitud y aquellos de magnitud menor.
+                            </li>
+                        </p>
+                            <li>
+                                Se utiliza el color de los círculos como <span class="bold-color">canal</span> para demarcar qué tipo de magnitud (magType) fue utilizada para medir dicho sismo. Esto se realiza con el fin de que los distintos sismos se comparen correctamente ya que no es correcto comparar magnitudes si es que estas no corresponden a la misma escala.
+                            </li>
+                        </p>
+                        </ol>
+                    </li>
+                    <li>
+                       Navegación por medio de Zoom: <span class="bold-color">Idiom de interacción</span>
+                        <p class="indent">
+                            Se utilizará d3.zoom con el fin de que el usuario pueda ver con mayor precisión las ubicaciones geográficas de los sismos.
+                        </p>
+                    </li>
+                    <li>
+                        Tooltip box: <span class="bold-color">Idiom de interacción</span>
+                        <p class="indent">
+                            Al posar el mouse sobre cualquiera de los círculos del mapa, se despliega información de los atributos del sismo. Esto se hace con la intención de que la visualización entregue la mayor cantidad de información posible.
+                        </p>
+                    </li>
+                    <li>
+                        Filtro al seleccionar tipo de magnitud (magType): <span class="bold-color">Idiom de interacción</span>
+                        <p class="indent">
+                            La selección y deselección de un tipo de magnitud (magType) en la primera visualización genera un filtro en la segunda visualización de modo que se desplieguen en el mapa solo los sismos medidos con la o las magnitudes seleccionadas.
+                        </p>
+                    </li>
+                </ol>
             </div>
+
             <div class="response">
                 <h4>Decisiones de diseño relacionadas a la tercera tarea visual</h4>
                 <h4>Respuesta:</h4>
                 <!-- Puedes agregar los P que sean necesarios -->
-                <p>Modifica solo este texto (no el de arriba) para poner tu respuesta</p>
-            </div>
-
-            <div class="response">
-                <h4>(Opcional) Decisiones de diseño relacionadas a tareas adicionales</h4>
-                <p>Puede incluir aquí las decisiones de diseño relacionadas a las tareas visuales adicionales</p>
+                <p>
+                    Gráfico de dispersión que relaciona la magnitud (mag) con la profundidad (depth) del sismo.
+                    En el eje x se posicionará la magnitud. En el eje y se posicionará la profundidad.
+                </p>
+                <ol>
+                    <li>
+                        Sismos como círculos (<span class="bold-color">marca bidimensional</span>): <span class="bold-color">Idiom visual</span>
+                        <p class="indent">
+                            Se utiliza el color de los círculos como <span class="bold-color">canal</span> para demarcar qué tipo de magnitud (magType) fue utilizada para medir dicho sismo. Esto se realiza con el fin de que los distintos sismos se comparen correctamente ya que no es correcto comparar magnitudes si es que estas no corresponden a la misma escala.
+                        </p>
+                    </li>
+                    <li>
+                        Tooltip box: <span class="bold-color">Idiom de interacción</span>
+                        <p class="indent">
+                            Al posar el mouse sobre cualquiera de los círculos del gráfico, se despliega una caja que mostrará el valor exacto de la magnitud y profundidad de dicho sismo. Esto se hace con la intención de que el usuario pueda acceder a información y valores más precisos.
+                        </p>
+                    </li>
+                    <li>
+                        Filtro al seleccionar tipo de magnitud (magType): <span class="bold-color">Idiom de interacción</span>
+                        <p class="indent">
+                            La selección y deselección de un tipo de magnitud en la primera visualización genera un filtro en la tercera visualización de modo que se desplieguen en el gráfico solo aquellos sismos medidos con la o las magnitudes seleccionadas.
+                        </p>
+                    </li>
+                </ol>
             </div>
         </div>
 
