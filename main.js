@@ -1,4 +1,4 @@
-const SISMOS= "https://github.com/agustinapena/Proyecto-VisInfo-/blob/main/2020-nov-01%20to%202020-nov-28.xlsx%20-%20Hoja%201.csv"
+const SISMOS= "https://raw.githubusercontent.com/agustinapena/Proyecto-VisInfo-/main/2020-nov-01%20to%202020-nov-28.xlsx%20-%20Hoja%201.csv?token=GHSAT0AAAAAACTVTDUJWFQWHML247UT6ILSZTN66KQ"
 
 d3.csv(SISMOS).then(data => {
     // Aquí puedes trabajar con tus datos
