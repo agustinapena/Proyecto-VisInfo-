@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilos.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.js"></script>
+    <title></title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="case">
+            <h1 class="titulo-principal">Sismos y terremotos</h1>
+        <div>
+        <h6>La <span class="highlight">relevancia</span> de los sismos es significativa no solo porque es una variable a considerar en decisiones de construcción y urbanismo, si no también porque pueden causar <span class="highlight">devastación</span> a gran escala, incluyendo pérdida de vidas, daños económicos, y trastornos en servicios esenciales como el agua, la electricidad y el transporte.<br>
+        <br>
+        Es por esta relevancia que la herramienta a continuación tiene como objetivo exponer visualizaciones <span class="highlight">gráficas</span> e <span class="highlight">interactivas</span> de algunos terremotos que ocurrieron a nivel global durante el año 2020, con el fin de informar a la población sobre este tipo de fenómenos naturales.<br>
+        <br>
+        A través de esta herramienta los usuarios serán capaces de <span class="highlight">reconocer</span> y <span class="highlight">analizar</span>  características variadas de estos terremotos, como lo son su magnitud, fecha, hora exacta y lugar geográfico de ocurrencia, profundidad, entre otras características.</h6>
+        <div class="case">
+            <h2>Visualización 1 -  Magnitudes y frecuencias</h2>
+        <div>
+        <h6>El siguiente gráfico busca representar la frecuencia con la que ocurren sismos dentro de un intervalo de magnitud.
+        </h6>
+        <h6 class="subtitulo">Cada barra tendrá un color que representa el tipo de magnitud que se usó para medir el sismo:</h6>
+
+        <ul class="legend textStart">
+
+            <li>
+                <span id="legendmd"></span> md: Duration magnitude
+            </li>
+            <li>
+                <span id="legendmwr"></span> mwr: Moment regional magnitude
+            </li>
+            <li>
+                <span id="legendmw"></span> mw: Moment magnitude
+            </li>
+            <li>
+                <span id="legendml"></span> ml: Local magnitude
+            </li>
+            <li>
+                <span id="legendmb"></span> mb: Body-Wave magnitude
+            </li>
+            <li>
+                <span id="legendmww"></span> mww: Moment W-Phase magnitude
+            </li>
+            <li>
+                <span id="legendmb_lg"></span> mb_lg: Short-Period Surface magnitude.
+            </li>
+
+        </ul>
+       <h6>Puedes posar tu mouse para obtener información más detallada de cada barra, además, puedes hacer click en una barra para elegir un tipo de magnitud y hacer se despliegue solo la inofrmación del tipo de magnitud seleccionada tanto en esta visualización como en las demás.</h6>
+            
+        <div id="vis-1">
+        </div>
+        <div class="textStart">
+            <ul>
+                <li>Tipo de Magnitud: <span id="detailName"></span></li>
+                <li>Intervalo: <span id="detailCaps"></span></li>
+                <li>Frecuencia: <span id="detailAventuras"></span></li>
+            </ul>
+
+        </div>
+
+        <h2>Visualización 2 - Ubicación geográfica de los sismos</h2>
+        <div>
+            <h5>Selecionar tipo de magnitud (también puedes seleccionarla en la visualización 1)</h5>
+            <button id="1">md</button>
+            <button id="2">mwr</button>
+            <button id="3">mw</button>
+            <button id="4">ml</button>
+            <button id="5">mb</button>
+            <button id="6">mww</button>
+            <button id="7">mb_lg</button>
+
+
+            
+        </div>
+        <ul class="legend textStart">
+            <li>
+                Cada punto representa un sismo.
+        </ul>
+        <div id="vis-2">
+            <h4 id="selected"></h4>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+
+<footer>
+    <h4 id ="nombres">Hecho por Amanda Ruiz y Agustina Peña 🗺️ </h4>
+</footer>
+
+
+</html>
