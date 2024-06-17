@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.js"></script>
-    <title></title>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
+    <title>Visualización</title>
 </head>
 
 <body>
@@ -70,25 +71,24 @@
         <h2>Visualización 2 - Ubicación geográfica de los sismos</h2>
         <div>
             <h5>Selecionar tipo de magnitud (también puedes seleccionarla en la visualización 1)</h5>
-            <button id="1">md</button>
-            <button id="2">mwr</button>
-            <button id="3">mw</button>
-            <button id="4">ml</button>
-            <button id="5">mb</button>
-            <button id="6">mww</button>
-            <button id="7">mb_lg</button>
-
-
-            
+            <button id="btn1">md</button>
+            <button id="btn2">mwr</button>
+            <button id="btn3">mw</button>
+            <button id="btn4">ml</button>
+            <button id="btn5">mb</button>
+            <button id="btn6">mww</button>
+            <button id="btn7">mb_lg</button> 
         </div>
         <ul class="legend textStart">
             <li>
                 Cada punto representa un sismo.
         </ul>
         <div id="vis-2">
-            <h4 id="selected"></h4>
+            <!-- <h4 id="selected"></h4> -->
         </div>
     </div>
+
+    <h2>Visualización 3 - Relación magnitud-profundidad de los sismos</h2>
     <script src="main.js"></script>
 </body>
 
