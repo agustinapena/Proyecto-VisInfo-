@@ -23,6 +23,8 @@ d3.csv(SISMOS).then(data => {
     }));
 
     // Definir intervalos de magnitud y tipos de magnitud
+    const buttons = document.querySelectorAll("button");
+
     const magnitudes = ["[2.5,3.7)", "[3.7,4.9)", "[4.9,6.1]"];
     const magTypes = ['md', 'mb_lg', 'ml', 'mwr', 'mw', 'mww', 'mb'];
     const colors = {
@@ -34,6 +36,42 @@ d3.csv(SISMOS).then(data => {
         'mww': 'rgb(140, 132, 203)',
         'mb': 'rgb(136, 195, 204)'
     };
+
+    // Manejar eventos de clic en los botones
+    buttons.forEach(button => {
+        button.addEventListener("click", () => {
+            const filter = button.textContent;
+            filterBars(filter);
+        });
+    });
+
+    // Función para filtrar las barras y los textos
+    function filterBars(filter) {
+        const bars = document.querySelectorAll(".bar");
+        const texts = document.querySelectorAll(".bar-text");
+
+        if (filter === "Limpiar filtro") {
+            bars.forEach(bar => bar.style.display = "block");
+            texts.forEach(text => text.style.display = "block");
+        } else {
+            const color = colors[filter];
+            bars.forEach(bar => {
+                if (bar.getAttribute('fill') === color) {
+                    bar.style.display = "block";
+                } else {
+                    bar.style.display = "none";
+                }
+            });
+            texts.forEach(text => {
+                const barColor = text.getAttribute('data-color');
+                if (barColor === color) {
+                    text.style.display = "block";
+                } else {
+                    text.style.display = "none";
+                }
+            });
+        }
+    }
 
     // Filtrar y contar datos por intervalo de magnitud y tipo de magnitud
     const frequencies = magnitudes.map(mag => {
@@ -128,58 +166,58 @@ d3.csv(SISMOS).then(data => {
         .attr("transform", d => `translate(${xScale(d.mag)}, 0)`);
 
     // Crear las barras dentro de cada grupo de intervalo
-intervalGroups.selectAll("rect")
-.data(d => magTypes.map(type => ({ type, count: d.frequencies[type] })))
-.enter().append("rect")
-.attr("x", (d, i) => (xScale.bandwidth() / magTypes.length) * i) // Ajustar posición x de cada barra
-.attr("y", d => yScale(d.count)) // Ajustar posición y de cada barra según la frecuencia
-.attr("width", xScale.bandwidth() / magTypes.length)
-.attr("height", d => HEIGHT_VIS_1 - margin.top - margin.bottom - yScale(d.count)) // Altura de la barra basada en la escala y
-.attr("fill", d => colors[d.type])
-.attr("opacity", 1) // Establecer opacidad inicial
-.on("mouseover", function(event, d) {
-    const magType = d.type;
-    const intervalo = d3.select(this.parentNode).datum().mag;
-    const frecuencia = d.count;
+    intervalGroups.selectAll("rect")
+        .data(d => magTypes.map(type => ({ type, count: d.frequencies[type], color: colors[type] })))
+        .enter().append("rect")
+        .attr("x", (d, i) => (xScale.bandwidth() / magTypes.length) * i) // Ajustar posición x de cada barra
+        .attr("y", d => yScale(d.count)) // Ajustar posición y de cada barra según la frecuencia
+        .attr("width", xScale.bandwidth() / magTypes.length)
+        .attr("height", d => HEIGHT_VIS_1 - margin.top - margin.bottom - yScale(d.count)) // Altura de la barra basada en la escala y
+        .attr("fill", d => d.color)
+        .attr("class", "bar")
+        .attr("data-color", d => d.color)
+        .on("mouseover", function(event, d) {
+            const magType = d.type;
+            const intervalo = d3.select(this.parentNode).datum().mag;
+            const frecuencia = d.count;
 
-    // Actualizar el contenido de las etiquetas span en el HTML
-    d3.select("#detailMag").text(magType);
-    d3.select("#detailIntervalo").text(intervalo);
-    d3.select("#detailFrecuencia").text(frecuencia);
+            // Actualizar el contenido de las etiquetas span en el HTML
+            d3.select("#detailMag").text(magType);
+            d3.select("#detailIntervalo").text(intervalo);
+            d3.select("#detailFrecuencia").text(frecuencia);
 
-    // Cambiar la opacidad de las barras no seleccionadas
-    SVG1.selectAll("rect")
-        .attr("opacity", function(dRect) {
-            return dRect.mag === intervalo ? 1 : 0.2; // Mantener opacidad completa solo de las barras del mismo intervalo
+            // Cambiar la opacidad de las barras no seleccionadas
+            SVG1.selectAll("rect")
+                .attr("opacity", function(dRect) {
+                    return dRect.mag === intervalo ? 1 : 0.2; // Mantener opacidad completa solo de las barras del mismo intervalo
+                });
+
+            // Mantener la opacidad completa de la barra seleccionada
+            d3.select(this)
+                .attr("opacity", 1);
+
+            // Cambiar la opacidad de los textos correspondientes
+            intervalGroups.selectAll("text")
+                .attr("opacity", function(dText) {
+                    return dText.type === magType && d3.select(this.parentNode).datum().mag === intervalo ? 1 : 0.2;
+                });
+        })
+        .on("mouseout", function(event, d) {
+            // Restaurar la opacidad original de todas las barras y textos al quitar el mouse
+            SVG1.selectAll("rect")
+                .attr("opacity", 1);
+            intervalGroups.selectAll("text")
+                .attr("opacity", 1);
+
+            // Limpiar el contenido de las etiquetas span
+            d3.select("#detailMag").text("");
+            d3.select("#detailIntervalo").text("");
+            d3.select("#detailFrecuencia").text("");
         });
-    // Mantener la opacidad completa de la barra seleccionada
-    d3.select(this)
-        .attr("opacity", 1);
-
-    // Cambiar la opacidad de los textos correspondientes
-    intervalGroups.selectAll("text")
-        .attr("opacity", function(dText) {
-            return dText.type === magType && d3.select(this.parentNode).datum().mag === intervalo ? 1 : 0.2;
-        });
-})
-
-.on("mouseout", function(event, d) {
-    // Restaurar la opacidad original de todas las barras y textos al quitar el mouse
-    SVG1.selectAll("rect")
-        .attr("opacity", 1);
-    intervalGroups.selectAll("text")
-        .attr("opacity", 1);
-
-    // Limpiar el contenido de las etiquetas span
-    d3.select("#detailMag").text("");
-    d3.select("#detailIntervalo").text("");
-    d3.select("#detailFrecuencia").text("");
-});
-
 
     // Agregar etiquetas de valor encima de las barras
     intervalGroups.selectAll("text")
-        .data(d => magTypes.map(type => ({ type, count: d.frequencies[type] })))
+        .data(d => magTypes.map(type => ({ type, count: d.frequencies[type], color: colors[type] })))
         .enter().append("text")
         .attr("x", (d, i) => (xScale.bandwidth() / magTypes.length) * i + (xScale.bandwidth() / magTypes.length) / 2) // Centrar el texto en la barra
         .attr("y", d => yScale(d.count) - 5) // Posicionar el texto justo encima de la barra
@@ -187,8 +225,13 @@ intervalGroups.selectAll("rect")
         .style("font-size", "12px")
         .style("font-family", "Lato, sans-serif") // Cambia la familia de fuentes
         .style("fill", "gray")
+        .attr("class", "bar-text")
+        .attr("data-color", d => d.color)
         .text(d => d.count);
-        
+
+
+
+
         
     
 
@@ -220,26 +263,61 @@ intervalGroups.selectAll("rect")
     
     const sismosGroup = SVG2.append("g");
 
-    // Añadir sismos al mapa
-    sismosGroup.selectAll("circle")
-        .data(data)
-        .enter().append("circle")
-        .attr("cx", d => projection([d.longitude, d.latitude])[0])
-        .attr("cy", d => projection([d.longitude, d.latitude])[1])
-        .attr("r", d => Math.sqrt(d.mag)) // El radio del círculo depende de la magnitud
-        .attr("fill", d => colors[d.magType])
-        .attr("opacity", 0.7)
-        .append("title") // Tooltip con la información del sismo
-        .text(d => `Lugar: ${d.place}\nMagnitud: ${d.mag}\nProfundidad: ${d.depth}`);
+    const radiusScale = d3.scaleLog()
+    .domain([1, d3.max(data, d => d.mag)]) // Dominio de la magnitud, comenzando desde 1 para evitar log(0)
+    .range([1, 8]); // Rango de tamaños de radio
+
+// Añadir sismos al mapa
+sismosGroup.selectAll("circle")
+    .data(data)
+    .enter().append("circle")
+    .attr("cx", d => projection([d.longitude, d.latitude])[0])
+    .attr("cy", d => projection([d.longitude, d.latitude])[1])
+    .attr("r", d => radiusScale(d.mag)) // Utilizar la escala de radio para el tamaño del círculo
+    .attr("fill", d => colors[d.magType])
+    .attr("opacity", 0.7)
+    .on("mouseover", (event, d) => {
+        // Mostrar tooltip al pasar el mouse sobre el círculo
+        showTooltip(event, d);
+    })
+    .on("mouseout", () => {
+        // Ocultar tooltip al quitar el mouse del círculo
+        hideTooltip();
+    });
+    //.append("title") // Tooltip con la información del sismo
+    //.text(d => `Lugar: ${d.place}\nMagnitud: ${d.mag}\nProfundidad: ${d.depth}\nTipo de Magnitud: ${d.magType}`);
+
+    // Función para mostrar el tooltip
+    function showTooltip(event, d) {
+        const tooltip = d3.select("#vis-2").append("div")
+            .attr("class", "tooltip")
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 10) + "px")
+            .html(`
+                <strong>Epicentro:</strong> ${d.place}<br>
+                <strong>Magnitud:</strong> ${d.mag}<br>
+                <strong>Profundidad:</strong> ${d.depth}<br>
+                <strong>Tipo de Magnitud:</strong> ${d.magType}
+            `);
+        tooltip.transition()
+            .duration(200)
+            .style("display", "block");
+    }
+    
+    // Función para ocultar el tooltip
+    function hideTooltip() {
+        d3.select(".tooltip").remove();
+    }
 });
 
-    // Añadir zoom y pan al mapa
-    SVG2.call(d3.zoom()
-        .scaleExtent([1, 8])
-        .on("zoom", ({ transform }) => {
-            sismosGroup.attr("transform", transform);
-            sismosGroup.attr("stroke-width", 1 / transform.k);
-        }));
+
+     // Añadir zoom y pan al mapa
+     SVG2.call(d3.zoom()
+     .scaleExtent([1, 8])
+     .on("zoom", ({ transform }) => {
+         sismosGroup.attr("transform", transform);
+         sismosGroup.attr("stroke-width", 1 / transform.k);
+     }));
 
     // cargarDatosMapa("md");
 

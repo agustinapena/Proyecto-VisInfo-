@@ -294,3 +294,19 @@ footer {
     border-radius: 8px;
     pointer-events: none;
 }
+
+.tooltip {
+    position: absolute;
+    font-family: 'Lato', sans-serif;
+    display: none;
+    padding: 12px; /* Aumentar el padding para más espacio interior */
+
+    background-color: #7596e3; /* Color de fondo */
+    color: #fff;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    max-width: 300px; /* Ancho máximo del tooltip */
+
+    pointer-events: none;
+}
