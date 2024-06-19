@@ -123,3 +123,6 @@ button {
     border-radius: 8px;
     transition: background-color 0.3s;
 }
+button:hover {
+    background-color: #bdd1ff; /* Un tono de verde más oscuro */
+}

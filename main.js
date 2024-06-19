@@ -14,15 +14,14 @@ const SVG1 = d3.select("#vis-1").append("svg")
 
 // Cargar datos desde el archivo CSV
 d3.csv(SISMOS).then(data => {
-    //REVISAR!!!!
     data = data.map(d => ({
         ...d,
         latitude: parseFloat(d.latitude),
         longitude: parseFloat(d.longitude),
-        mag:  parseFloat(d.mag),
+        mag: parseFloat(d.mag),
         depth: parseFloat(d.depth)
     }));
-    
+
     // Definir intervalos de magnitud y tipos de magnitud
     const magnitudes = ["[2.5,3.7)", "[3.7,4.9)", "[4.9,6.1]"];
     const magTypes = ['md', 'mb_lg', 'ml', 'mwr', 'mw', 'mww', 'mb'];
@@ -38,7 +37,8 @@ d3.csv(SISMOS).then(data => {
 
     // Filtrar y contar datos por intervalo de magnitud y tipo de magnitud
     const frequencies = magnitudes.map(mag => {
-        const filteredData = data.filter(d => parseFloat(d.mag) >= parseFloat(mag.split(',')[0]) && parseFloat(d.mag) < parseFloat(mag.split(',')[1]));
+        const [minMag, maxMag] = mag.slice(1, -1).split(',').map(parseFloat);
+        const filteredData = data.filter(d => d.mag >= minMag && d.mag < maxMag);
         const countByType = {};
         magTypes.forEach(type => {
             countByType[type] = filteredData.filter(d => d.magType === type).length;
@@ -55,7 +55,7 @@ d3.csv(SISMOS).then(data => {
     // Obtener la frecuencia máxima para ajustar la escala y
     const maxY = d3.max(frequencies, d => d3.max(Object.values(d.frequencies)));
 
-    // Escala y para la frecuencia máxima
+    // Escala y para la frecuencia máxima, empezando desde 0 para asegurar visibilidad de barras pequeñas
     const yScale = d3.scaleLinear()
         .domain([0, maxY])
         .nice() // Ajusta los límites del eje y para que las grillas se ajusten mejor
@@ -66,7 +66,7 @@ d3.csv(SISMOS).then(data => {
         .attr("class", "x-axis")
         .attr("transform", `translate(0, ${HEIGHT_VIS_1 - margin.top - margin.bottom})`)
         .call(d3.axisBottom(xScale))
-      .append("text") // Agregar texto para la etiqueta del eje x
+        .append("text") // Agregar texto para la etiqueta del eje x
         .attr("x", (WIDTH_VIS_1 - margin.left - margin.right) / 2)
         .attr("y", 40) // Ajustar la posición vertical del texto
         .attr("fill", "gray")
@@ -78,7 +78,7 @@ d3.csv(SISMOS).then(data => {
     SVG1.append("g")
         .attr("class", "y-axis")
         .call(d3.axisLeft(yScale).ticks(5).tickSizeInner(-WIDTH_VIS_1 + margin.left + margin.right)) // Determina el número de ticks en el eje y y activa las grillas
-      .append("text") // Agregar texto para la etiqueta del eje y
+        .append("text") // Agregar texto para la etiqueta del eje y
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
         .attr("x", 0 - (HEIGHT_VIS_1 / 2))
@@ -128,14 +128,74 @@ d3.csv(SISMOS).then(data => {
         .attr("transform", d => `translate(${xScale(d.mag)}, 0)`);
 
     // Crear las barras dentro de cada grupo de intervalo
-    intervalGroups.selectAll("rect")
+intervalGroups.selectAll("rect")
+.data(d => magTypes.map(type => ({ type, count: d.frequencies[type] })))
+.enter().append("rect")
+.attr("x", (d, i) => (xScale.bandwidth() / magTypes.length) * i) // Ajustar posición x de cada barra
+.attr("y", d => yScale(d.count)) // Ajustar posición y de cada barra según la frecuencia
+.attr("width", xScale.bandwidth() / magTypes.length)
+.attr("height", d => HEIGHT_VIS_1 - margin.top - margin.bottom - yScale(d.count)) // Altura de la barra basada en la escala y
+.attr("fill", d => colors[d.type])
+.attr("opacity", 1) // Establecer opacidad inicial
+.on("mouseover", function(event, d) {
+    const magType = d.type;
+    const intervalo = d3.select(this.parentNode).datum().mag;
+    const frecuencia = d.count;
+
+    // Actualizar el contenido de las etiquetas span en el HTML
+    d3.select("#detailMag").text(magType);
+    d3.select("#detailIntervalo").text(intervalo);
+    d3.select("#detailFrecuencia").text(frecuencia);
+
+    // Cambiar la opacidad de las barras no seleccionadas
+    SVG1.selectAll("rect")
+        .attr("opacity", function(dRect) {
+            return dRect.mag === intervalo ? 1 : 0.2; // Mantener opacidad completa solo de las barras del mismo intervalo
+        });
+    // Mantener la opacidad completa de la barra seleccionada
+    d3.select(this)
+        .attr("opacity", 1);
+
+    // Cambiar la opacidad de los textos correspondientes
+    intervalGroups.selectAll("text")
+        .attr("opacity", function(dText) {
+            return dText.type === magType && d3.select(this.parentNode).datum().mag === intervalo ? 1 : 0.2;
+        });
+})
+
+.on("mouseout", function(event, d) {
+    // Restaurar la opacidad original de todas las barras y textos al quitar el mouse
+    SVG1.selectAll("rect")
+        .attr("opacity", 1);
+    intervalGroups.selectAll("text")
+        .attr("opacity", 1);
+
+    // Limpiar el contenido de las etiquetas span
+    d3.select("#detailMag").text("");
+    d3.select("#detailIntervalo").text("");
+    d3.select("#detailFrecuencia").text("");
+});
+
+
+    // Agregar etiquetas de valor encima de las barras
+    intervalGroups.selectAll("text")
         .data(d => magTypes.map(type => ({ type, count: d.frequencies[type] })))
-        .enter().append("rect")
-        .attr("x", (d, i) => xScale.bandwidth() / 7 * i) // Ajustar posición x de cada barra
-        .attr("y", d => yScale(d.count)) // Ajustar posición y de cada barra según la frecuencia
-        .attr("width", xScale.bandwidth() / 7)
-        .attr("height", d => HEIGHT_VIS_1 - margin.top - margin.bottom - yScale(d.count))
-        .attr("fill", d => colors[d.type]);
+        .enter().append("text")
+        .attr("x", (d, i) => (xScale.bandwidth() / magTypes.length) * i + (xScale.bandwidth() / magTypes.length) / 2) // Centrar el texto en la barra
+        .attr("y", d => yScale(d.count) - 5) // Posicionar el texto justo encima de la barra
+        .attr("text-anchor", "middle")
+        .style("font-size", "12px")
+        .style("font-family", "Lato, sans-serif") // Cambia la familia de fuentes
+        .style("fill", "gray")
+        .text(d => d.count);
+        
+        
+    
+
+
+
+
+        
 
     // Visualización 2 - Mapa
     const WIDTH_VIS_2 = 1000;
@@ -244,6 +304,10 @@ d3.csv(SISMOS).then(data => {
     // d3.select("#btn5").on("click", () => actualizarMapa("mb"));
     // d3.select("#btn6").on("click", () => actualizarMapa("mww"));
     // d3.select("#btn7").on("click", () => actualizarMapa("mb_lg"));
+
+
+
+    
 
     // Visualización 3 - Gráfico de dispersión
     const WIDTH_VIS_3 = 1000;
@@ -359,3 +423,4 @@ d3.csv(SISMOS).then(data => {
 }).catch(error => {
     console.error('Error cargando los datos:', error);
 });
+

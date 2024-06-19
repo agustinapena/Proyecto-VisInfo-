@@ -230,6 +230,21 @@ button {
     transition: background-color 0.3s;
 }
 
+/* Estilos para el botón "Limpiar filtro" */
+#btn8 {
+    background-color: gray;
+    color: ffff;
+    border: none;
+    font-family: 'Lato', sans-serif;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Estilos para el botón "Limpiar filtro" cuando se hace hover */
+#btn8:hover {
+    background-color: rgb(180, 179, 179); /* Un tono de verde más oscuro */
+}
+
 button:hover {
     background-color: #bdd1ff; /* Un tono de verde más oscuro */
 }

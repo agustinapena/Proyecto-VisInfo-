@@ -55,29 +55,32 @@
             </li>
 
         </ul>
-       <h6>Puedes posar tu mouse para obtener información más detallada de cada barra, además, puedes hacer click en una barra para elegir un tipo de magnitud y hacer se despliegue solo la inofrmación del tipo de magnitud seleccionada tanto en esta visualización como en las demás.</h6>
-            
+       <h6>Puedes posar tu mouse sobre una barra para obtener información más detallada de ella, además, puedes hacer click en los botones para elegir un tipo de magnitud y hacer que se despliegue solo la inofrmación del tipo de magnitud seleccionada tanto en esta visualización como en las demás.</h6>
+       <div>
+        <h5>Selecionar tipo de magnitud (El filtro aplicará para todas las visualizadiones)</h5>
+        <button id="btn1">md</button>
+        <button id="btn2">mwr</button>
+        <button id="btn3">mw</button>
+        <button id="btn4">ml</button>
+        <button id="btn5">mb</button>
+        <button id="btn6">mww</button>
+        <button id="btn7">mb_lg</button>
+        <button id="btn8">Limpiar filtro</button> 
+    </div>
         <div id="vis-1">
         </div>
         <div class="textStart">
             <ul>
-                <li>Tipo de Magnitud: <span id="detailName"></span></li>
-                <li>Intervalo: <span id="detailCaps"></span></li>
-                <li>Frecuencia: <span id="detailAventuras"></span></li>
+                <li>Tipo de Magnitud: <span id="detailMag"></span></li>
+                <li>Intervalo de Magnitud: <span id="detailIntervalo"></span></li>
+                <li>Frecuencia: <span id="detailFrecuencia"></span></li>
             </ul>
 
         </div>
 
         <h2>Visualización 2 - Ubicación geográfica de los sismos</h2>
         <div>
-            <h5>Selecionar tipo de magnitud (también puedes seleccionarla en la visualización 1)</h5>
-            <button id="btn1">md</button>
-            <button id="btn2">mwr</button>
-            <button id="btn3">mw</button>
-            <button id="btn4">ml</button>
-            <button id="btn5">mb</button>
-            <button id="btn6">mww</button>
-            <button id="btn7">mb_lg</button> 
+            <h5>La magnitud a mostrar es la seleccionada en la visualización 1. Si es que no se seleccionó ninguna, se muestran todas.</h5>
         </div>
         <ul class="legend textStart">
             <li>
@@ -86,14 +89,28 @@
         <div id="vis-2">
             <!-- <h4 id="selected"></h4> -->
         </div>
+        <h2>Visualización 3 - Relación entre profundidad y magnitud</h2>
+        <div>
+            <h5>La magnitud a mostrar es la seleccionada en la visualización 1. Si es que no se seleccionó ninguna, se muestran todas</h5>
+        </div>
+        <ul class="legend textStart">
+            <li>
+                Cada punto representa un sismo.
+        </ul>
+        <div id="vis-3">
+            <!-- <h4 id="selected"></h4> -->
+        </div>
     </div>
 
-    <h2>Visualización 3 - Relación magnitud-profundidad de los sismos</h2>
     <script src="main.js"></script>
+    <br>       
+    <br>
+    <br>
+
 </body>
 
 <footer>
-    <h4 id ="nombres">Hecho por Amanda Ruiz y Agustina Peña 🗺️ </h4>
+    <h4 id ="nombres">Hecho por Amanda Ruiz y Agustina Peña :) 🗺️ </h4>
 </footer>
 
 
