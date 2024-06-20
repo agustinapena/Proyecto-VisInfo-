@@ -248,144 +248,109 @@ d3.csv(SISMOS).then(data => {
         .attr("width", WIDTH_VIS_2)
         .attr("height", HEIGHT_VIS_2)
 
+    const mapGroup = SVG2.append("g");
+
     const projection = d3.geoNaturalEarth1()
         .translate([WIDTH_VIS_2 / 2, HEIGHT_VIS_2 / 2])
-        .scale(150);
+        .scale(WIDTH_VIS_2 / 5.8);
 
     const path = d3.geoPath().projection(projection);
 
     d3.json("https://d3js.org/world-110m.v1.json").then(world => {
-    SVG2.append("path")
-        .datum(topojson.feature(world, world.objects.countries))
-        .attr("d", path)
-        .attr("fill", "#e0e0e0")
-        .attr("stroke", "#ffffff");
+        mapGroup.append("path")
+            .datum(topojson.feature(world, world.objects.countries))
+            .attr("d", path)
+            .attr("fill", "#e0e0e0")
+            .attr("stroke", "#ffffff");
     
-    const sismosGroup = SVG2.append("g");
+    // const sismosGroup = SVG2.append("g");
+    const sismosGroup = mapGroup.append("g");
 
-    const radiusScale = d3.scaleLog()
-    .domain([1, d3.max(data, d => d.mag)]) // Dominio de la magnitud, comenzando desde 1 para evitar log(0)
-    .range([1, 8]); // Rango de tamaños de radio
+    const radiusScale = d3.scaleSqrt() // Escala de raíz cuadrada para el tamaño del círculo
+        .domain([d3.min(data, d => d.mag), d3.max(data, d => d.mag)]) // Dominio de magnitudes
+        .range([1, 5]); // Rango de tamaños de radio
 
-// Añadir sismos al mapa
-sismosGroup.selectAll("circle")
-    .data(data)
-    .enter().append("circle")
-    .attr("cx", d => projection([d.longitude, d.latitude])[0])
-    .attr("cy", d => projection([d.longitude, d.latitude])[1])
-    .attr("r", d => radiusScale(d.mag)) // Utilizar la escala de radio para el tamaño del círculo
-    .attr("fill", d => colors[d.magType])
-    .attr("opacity", 0.7)
-    .on("mouseover", (event, d) => {
-        // Mostrar tooltip al pasar el mouse sobre el círculo
-        showTooltip(event, d);
-    })
-    .on("mouseout", () => {
-        // Ocultar tooltip al quitar el mouse del círculo
-        hideTooltip();
+    // Añadir sismos al mapa
+    sismosGroup.selectAll("circle")
+        .data(data)
+        .enter().append("circle")
+        .attr("cx", d => projection([d.longitude, d.latitude])[0])
+        .attr("cy", d => projection([d.longitude, d.latitude])[1])
+        .attr("r", d => radiusScale(d.mag)) // Utilizar la escala de radio para el tamaño del círculo
+        .attr("fill", d => colors[d.magType])
+        .attr("opacity", 0.7)
+        .attr("class", "sismo-circle")
+        .on("mouseover", function(event, d) {
+            // Mostrar tooltip al pasar el mouse sobre el círculo
+            showTooltip(event, d);
+
+            // Opacar todos los círculos excepto el seleccionado
+            d3.selectAll(".sismo-circle")
+                .attr("opacity", 0.2);
+            d3.select(this)
+                .attr("opacity", 1);
+        })
+        .on("mouseout", function() {
+            // Ocultar tooltip al quitar el mouse del círculo
+            hideTooltip();
+            d3.selectAll(".sismo-circle")
+                .attr("opacity", 1);
+        });
+        //.append("title") // Tooltip con la información del sismo
+        //.text(d => `Lugar: ${d.place}\nMagnitud: ${d.mag}\nProfundidad: ${d.depth}\nTipo de Magnitud: ${d.magType}`);
+
+        // Función para mostrar el tooltip
+        function showTooltip(event, d) {
+            const tooltip = d3.select("#vis-2").append("div")
+                .attr("class", "tooltip")
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px")
+                .html(`
+                    <strong>Epicentro:</strong> ${d.place}<br>
+                    <strong>Magnitud:</strong> ${d.mag}<br>
+                    <strong>Profundidad:</strong> ${d.depth}<br>
+                    <strong>Tipo de Magnitud:</strong> ${d.magType}
+                `);
+            tooltip.transition()
+                .duration(200)
+                .style("display", "block");
+        }
+        
+        // Función para ocultar el tooltip
+        function hideTooltip() {
+            d3.select(".tooltip").remove();
+        }
     });
-    //.append("title") // Tooltip con la información del sismo
-    //.text(d => `Lugar: ${d.place}\nMagnitud: ${d.mag}\nProfundidad: ${d.depth}\nTipo de Magnitud: ${d.magType}`);
 
-    // Función para mostrar el tooltip
-    function showTooltip(event, d) {
-        const tooltip = d3.select("#vis-2").append("div")
-            .attr("class", "tooltip")
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 10) + "px")
-            .html(`
-                <strong>Epicentro:</strong> ${d.place}<br>
-                <strong>Magnitud:</strong> ${d.mag}<br>
-                <strong>Profundidad:</strong> ${d.depth}<br>
-                <strong>Tipo de Magnitud:</strong> ${d.magType}
-            `);
-        tooltip.transition()
-            .duration(200)
-            .style("display", "block");
-    }
+
+    // Añadir zoom y pan al mapa
+    SVG2.call(d3.zoom()
+        .scaleExtent([1, 8])
+        .on("zoom", function(event) {
+            const { transform } = event;
     
-    // Función para ocultar el tooltip
-    function hideTooltip() {
-        d3.select(".tooltip").remove();
-    }
-});
-
-
-     // Añadir zoom y pan al mapa
-     SVG2.call(d3.zoom()
-     .scaleExtent([1, 8])
-     .on("zoom", ({ transform }) => {
-         sismosGroup.attr("transform", transform);
-         sismosGroup.attr("stroke-width", 1 / transform.k);
-     }));
-
-    // cargarDatosMapa("md");
-
-    // d3.json("https://d3js.org/world-110m.v1.json").then(world => {
-    //     sismosGroup.append("path")
-    //         .datum(topojson.feature(world, world.objects.land))
-    //         .attr("d", path)
-    //         .attr("fill", "#f0f0f0");
-
-    //     sismosGroup.selectAll("circle")
-    //         .data(data)
-    //         .enter().append("circle")
-    //         .attr("cx", d => projection([d.longitude, d.latitude])[0])
-    //         .attr("cy", d => projection([d.longitude, d.latitude])[1])
-    //         .attr("r", d => Math.sqrt(d.mag))
-    //         .attr("fill", d => colors[d.magType])
-    //         .attr("opacity", 0.7)
-    //         .append("title")
-    //         .text(d => `Magnitud: ${d.mag}, Tipo: ${d.magType}`);
-    // });
-
-    // SVG2.call(d3.zoom().on("zoom", () => {
-    //     sismosGroup.attr("transform", d3.event.transform);
-    // })); 
+            // Asegurar que el mapa no desaparezca fuera del contenedor SVG
+            const newScale = transform.k;
+            const xLimit = Math.min(0, WIDTH_VIS_2 - WIDTH_VIS_2 * newScale);  // Límite horizontal
+            const yLimit = Math.min(0, HEIGHT_VIS_2 - HEIGHT_VIS_2 * newScale);  // Límite vertical
+            
+            // Ajustar el transformador solo si está dentro de los límites
+            transform.x = Math.max(xLimit, Math.min(0, transform.x));
+            transform.y = Math.max(yLimit, Math.min(0, transform.y));
     
-    // Función para cargar y mostrar los datos iniciales del mapa
-    // function cargarDatosMapa(magnitudeType) {
-    //     d3.csv(SISMOS).then(data => {
-    //         // Filtrar datos según el tipo de magnitud seleccionado
-    //         const filteredData = data.filter(d => d.magType === magnitudeType);
-
-    //         // Eliminar los puntos existentes en el mapa
-    //         sismosGroup.selectAll("circle").remove();
-
-    //         // Actualizar puntos en el mapa
-    //         sismosGroup.selectAll("circle")
-    //             .data(filteredData)
-    //             .enter().append("circle")
-    //             .attr("cx", d => projection([d.longitude, d.latitude])[0])
-    //             .attr("cy", d => projection([d.longitude, d.latitude])[1])
-    //             .attr("r", d => Math.sqrt(d.mag))
-    //             .attr("fill", d => colors[d.magType])
-    //             .attr("opacity", 0.7)
-    //             .append("title")
-    //             .text(d => `Magnitud: ${d.mag}, Tipo: ${d.magType}`);
-    //     }).catch(error => {
-    //         console.error('Error cargando los datos:', error);
-    //     });
-    // }
-
-    // // Función para actualizar el mapa cuando se hace clic en un botón
-    // function actualizarMapa(magnitudeType) {
-    //     // Cargar y mostrar datos actualizados según el tipo de magnitud seleccionado
-    //     cargarDatosMapa(magnitudeType);
-    // }
-
-    // // Asignar eventos de clic a los botones de magnitud
-    // d3.select("#btn1").on("click", () => actualizarMapa("md"));
-    // d3.select("#btn2").on("click", () => actualizarMapa("mwr"));
-    // d3.select("#btn3").on("click", () => actualizarMapa("mw"));
-    // d3.select("#btn4").on("click", () => actualizarMapa("ml"));
-    // d3.select("#btn5").on("click", () => actualizarMapa("mb"));
-    // d3.select("#btn6").on("click", () => actualizarMapa("mww"));
-    // d3.select("#btn7").on("click", () => actualizarMapa("mb_lg"));
-
-
-
+            // Aplicar el transformador actualizado al grupo del mapa
+            mapGroup.attr("transform", transform);
+            mapGroup.attr("stroke-width", 1 / newScale);
+        }));
     
+
+
+
+
+
+
+
+
 
     // Visualización 3 - Gráfico de dispersión
     const WIDTH_VIS_3 = 1000;
@@ -436,7 +401,7 @@ sismosGroup.selectAll("circle")
         .style("fill", "gray")
         .text("Profundidad");
 
-    const circles = SVG3.selectAll("circle")
+    SVG3.selectAll("circle")
         .data(data)
         .enter().append("circle")
         .attr("cx", d => xScale3(d.mag))
@@ -444,23 +409,40 @@ sismosGroup.selectAll("circle")
         .attr("r", 5)
         .attr("fill", d => colors[d.magType])
         .attr("opacity", 0.7)
+        .attr("class", "sismo-circulo")
+        .on("mouseover", function(event, d) {
+            showTooltip3(event, d);
+            
+            // Opacar todos los círculos excepto el seleccionado
+            d3.selectAll(".sismo-circulo")
+                .attr("opacity", 0.2);
+            d3.select(this)
+                .attr("opacity", 1);
+        })
+        .on("mouseout", function() {
+            hideTooltip3();
+            d3.selectAll(".sismo-circulo")
+                .attr("opacity", 1);
+        });
 
-    const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-
-    circles.on("mouseover", d => {
+    function showTooltip3(event, d) {
+        const tooltip = d3.select("#vis-3").append("div")
+            .attr("class", "tooltip")
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 10) + "px")
+            .html(`
+                <strong>Epicentro:</strong> ${d.place}<br>
+                <strong>Magnitud:</strong> ${d.mag}<br>
+                <strong>Profundidad:</strong> ${d.depth}
+            `);
         tooltip.transition()
             .duration(200)
-            .style("opacity", .9);
-        tooltip.html(`Magnitud: ${d.mag}<br>Profundidad: ${d.depth}`)
-            .style("left", (d3.event.pageX) + "px")
-            .style("top", (d3.event.pageY - 28) + "px");
-    }).on("mouseout", d => {
-        tooltip.transition()
-            .duration(500)
-            .style("opacity", 0);
-    });
+            .style("display", "block");
+    }
+
+    function hideTooltip3() {
+        d3.select(".tooltip").remove();
+    }
 
     function actualizarDispersion(magnitudeType) {
         const filteredData = data.filter(d => magnitudeType.includes(d.magType));
