@@ -51,6 +51,11 @@ function filterBars(filter) {
     if (filter === "Limpiar filtro") {
         bars.map(bar => bar.style.display = "block");
         texts.map(text => text.style.display = "block");
+         // Mostrar todos los círculos en el mapa
+         d3.selectAll(".sismo-circle")
+         .style("display", "block");
+
+     const color = colors[filter];
     } else {
         const color = colors[filter];
 
@@ -65,6 +70,12 @@ function filterBars(filter) {
 
         texts.filter(text => text.getAttribute('data-color') === color)
             .map(text => text.style.display = "block");
+        
+        // Filtrar los círculos en el mapa según el color (magnitud) seleccionado
+        d3.selectAll(".sismo-circle")
+        .attr("display", function(d) {
+            return colors[d.magType] === color ? "block" : "none";
+        });
     }
 }
 const frequencies = magnitudes.map(mag => {
@@ -362,70 +373,95 @@ const frequencies = magnitudes.map(mag => {
     
         
 
-    const xScale3 = d3.scaleLinear()
-        .range([0, WIDTH_VIS_3 - margin.left - margin.right]);
-
     const yScale3 = d3.scaleLinear()
+        .domain([-150, 150])  // Rango de -150 a 150 para intervalos de 50
         .range([HEIGHT_VIS_3 - margin.top - margin.bottom, 0]);
-
-    const xAxis3 = d3.axisBottom(xScale3);
-    const yAxis3 = d3.axisLeft(yScale3);
+    
+    const yAxis3 = d3.axisLeft(yScale3)
+        .tickValues([-150, -100, -50, 0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650]);  // Definir los valores de las marcas deseadas
+    
+    const xScale3 = d3.scaleLinear()
+        .domain([0, 10])  // Rango de 0 a 10
+        .range([0, WIDTH_VIS_3 - margin.left - margin.right]);
+    
+    const xAxis3 = d3.axisBottom(xScale3)
+        .ticks(10);  // Mostrará marcas cada 1 unidad (0, 1, 2, ..., 10)
+    
 
     xScale3.domain(d3.extent(data, d => d.mag)).nice();
     yScale3.domain(d3.extent(data, d => d.depth)).nice();
 
-    
+   // Crear ejes x e y con grillas y estilos
+SVG3.append("g")
+    .attr("class", "x-axis")
+    .attr("transform", `translate(0, ${HEIGHT_VIS_3 - margin.top - margin.bottom})`)
+    .call(xAxis3)
+    .selectAll(".tick line")
+    .attr("stroke", "lightgray")
+    .attr("stroke-dasharray", "2,2");
 
-    SVG3.append("g")
-        .attr("class", "x-axis")
-        .attr("transform", `translate(0, ${HEIGHT_VIS_3 - margin.top - margin.bottom})`)
-        .call(xAxis3)
-        .append("text")
-        .attr("x", (WIDTH_VIS_3 - margin.left - margin.right) / 2)
-        .attr("y", 40)
-        .attr("fill", "gray")
-        .attr("font-size", "16px")
-        .attr("font-family", "Lato, sans-serif")
-        .style("text-anchor", "middle")
-        .text("Magnitud");
-    
-    SVG3.append("g")
-        .attr("class", "y-axis")
-        .call(yAxis3)
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x", 0 - (HEIGHT_VIS_3 / 2))
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .style("font-size", "16px")
-        .style("font-family", "Lato, sans-serif")
-        .style("fill", "gray")
-        .text("Profundidad");
+SVG3.selectAll(".domain")
+    .attr("stroke", "gray")
+    .attr("stroke-width", "1.5");
 
-    SVG3.selectAll("circle")
-        .data(data)
-        .enter().append("circle")
-        .attr("cx", d => xScale3(d.mag))
-        .attr("cy", d => yScale3(d.depth))
-        .attr("r", 5)
-        .attr("fill", d => colors[d.magType])
-        .attr("opacity", 0.7)
-        .attr("class", "sismo-circulo")
-        .on("mouseover", function(event, d) {
-            showTooltip3(event, d);
-            
-            // Opacar todos los círculos excepto el seleccionado
-            d3.selectAll(".sismo-circulo")
-                .attr("opacity", 0.2);
-            d3.select(this)
-                .attr("opacity", 1);
-        })
-        .on("mouseout", function() {
-            hideTooltip3();
-            d3.selectAll(".sismo-circulo")
-                .attr("opacity", 1);
-        });
+SVG3.append("g")
+    .attr("class", "y-axis")
+    .call(yAxis3)
+    .selectAll(".tick line")
+    .attr("stroke", "lightgray")
+    .attr("stroke-dasharray", "2,2");
+
+SVG3.selectAll(".domain")
+    .attr("stroke", "gray")
+    .attr("stroke-width", "1.5");
+
+// Agregar etiqueta para el eje x
+SVG3.select(".x-axis")
+    .append("text")
+    .attr("x", (WIDTH_VIS_3 - margin.left - margin.right) / 2)
+    .attr("y", 40)
+    .attr("fill", "gray")
+    .attr("font-size", "16px")
+    .attr("font-family", "Lato, sans-serif")
+    .style("text-anchor", "middle")
+    .text("Magnitud");
+// Agregar etiqueta para el eje y
+SVG3.select(".y-axis")
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x", 0 - (HEIGHT_VIS_3 / 2))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .style("font-size", "16px")
+    .style("font-family", "Lato, sans-serif")
+    .style("fill", "gray")
+    .text("Profundidad");
+
+  // Dentro de la sección de código para crear el gráfico de dispersión (vis-3)
+const circles = SVG3.selectAll("circle")
+.data(data)
+.enter().append("circle")
+.attr("cx", d => xScale3(d.mag))
+.attr("cy", d => yScale3(d.depth))
+.attr("r", 5)
+.attr("fill", d => colors[d.magType])
+.attr("opacity", 0.7)
+.attr("class", "sismo-circulo")
+.on("mouseover", function(event, d) {
+    showTooltip3(event, d);
+    
+    // Opacar todos los círculos excepto el seleccionado
+    d3.selectAll(".sismo-circulo")
+        .attr("opacity", 0.2);
+    d3.select(this)
+        .attr("opacity", 1);
+})
+.on("mouseout", function() {
+    hideTooltip3();
+    d3.selectAll(".sismo-circulo")
+        .attr("opacity", 1);
+});
 
     function showTooltip3(event, d) {
         const tooltip = d3.select("#vis-3").append("div")
@@ -435,7 +471,8 @@ const frequencies = magnitudes.map(mag => {
             .html(`
                 <strong>Epicentro:</strong> ${d.place}<br>
                 <strong>Magnitud:</strong> ${d.mag}<br>
-                <strong>Profundidad:</strong> ${d.depth}
+                <strong>Profundidad:</strong> ${d.depth}<br>
+                <strong>Tipo de Magnitud:</strong> ${d.magType}
             `);
         tooltip.transition()
             .duration(200)
@@ -448,20 +485,20 @@ const frequencies = magnitudes.map(mag => {
 
     function actualizarDispersion(magnitudeType) {
         const filteredData = data.filter(d => magnitudeType.includes(d.magType));
-
+    
         xScale3.domain(d3.extent(filteredData, d => d.mag)).nice();
         yScale3.domain(d3.extent(filteredData, d => d.depth)).nice();
-
+    
         SVG3.select(".x-axis")
             .transition()
             .duration(1000)
             .call(xAxis3);
-
+    
         SVG3.select(".y-axis")
             .transition()
             .duration(1000)
             .call(yAxis3);
-
+    
         circles.data(filteredData)
             .transition()
             .duration(1000)
@@ -469,7 +506,6 @@ const frequencies = magnitudes.map(mag => {
             .attr("cy", d => yScale3(d.depth))
             .attr("fill", d => colors[d.magType]);
     }
-
     // Asignar eventos de clic a los botones de magnitud
     d3.select("#btn1").on("click", () => actualizarDispersion(["md"]));
     d3.select("#btn2").on("click", () => actualizarDispersion(["mwr"]));
@@ -478,9 +514,6 @@ const frequencies = magnitudes.map(mag => {
     d3.select("#btn5").on("click", () => actualizarDispersion(["mb"]));
     d3.select("#btn6").on("click", () => actualizarDispersion(["mww"]));
     d3.select("#btn7").on("click", () => actualizarDispersion(["mb_lg"]));
-
-    // Llamar a la función inicial para cargar los datos del gráfico al inicio
-    actualizarDispersion(["md"]);
 
 }).catch(error => {
     console.error('Error cargando los datos:', error);
