@@ -23,7 +23,7 @@ d3.csv(SISMOS).then(data => {
     }));
 
     // Definir intervalos de magnitud y tipos de magnitud
-    const buttons = document.querySelectorAll("button");
+    const buttons = Array.from(document.querySelectorAll("button"));
 
     const magnitudes = ["[2.5,3.7)", "[3.7,4.9)", "[4.9,6.1]"];
     const magTypes = ['md', 'mb_lg', 'ml', 'mwr', 'mw', 'mww', 'mb'];
@@ -37,52 +37,50 @@ d3.csv(SISMOS).then(data => {
         'mb': 'rgb(136, 195, 204)'
     };
 
-    // Manejar eventos de clic en los botones
-    buttons.forEach(button => {
-        button.addEventListener("click", () => {
-            const filter = button.textContent;
-            filterBars(filter);
-        });
+    // Utilizar el método map para asignar eventos a cada botón
+buttons.map(button => {
+    button.addEventListener("click", () => {
+        const filter = button.textContent;
+        filterBars(filter);
     });
+});
+function filterBars(filter) {
+    const bars = Array.from(document.querySelectorAll(".bar"));
+    const texts = Array.from(document.querySelectorAll(".bar-text"));
 
-    // Función para filtrar las barras y los textos
-    function filterBars(filter) {
-        const bars = document.querySelectorAll(".bar");
-        const texts = document.querySelectorAll(".bar-text");
+    if (filter === "Limpiar filtro") {
+        bars.map(bar => bar.style.display = "block");
+        texts.map(text => text.style.display = "block");
+    } else {
+        const color = colors[filter];
 
-        if (filter === "Limpiar filtro") {
-            bars.forEach(bar => bar.style.display = "block");
-            texts.forEach(text => text.style.display = "block");
-        } else {
-            const color = colors[filter];
-            bars.forEach(bar => {
-                if (bar.getAttribute('fill') === color) {
-                    bar.style.display = "block";
-                } else {
-                    bar.style.display = "none";
-                }
-            });
-            texts.forEach(text => {
-                const barColor = text.getAttribute('data-color');
-                if (barColor === color) {
-                    text.style.display = "block";
-                } else {
-                    text.style.display = "none";
-                }
-            });
-        }
+        bars.filter(bar => bar.getAttribute('fill') !== color)
+            .map(bar => bar.style.display = "none");
+
+        bars.filter(bar => bar.getAttribute('fill') === color)
+            .map(bar => bar.style.display = "block");
+
+        texts.filter(text => text.getAttribute('data-color') !== color)
+            .map(text => text.style.display = "none");
+
+        texts.filter(text => text.getAttribute('data-color') === color)
+            .map(text => text.style.display = "block");
     }
+}
+const frequencies = magnitudes.map(mag => {
+    const [minMag, maxMag] = mag.slice(1, -1).split(',').map(parseFloat);
+    const filteredData = data.filter(d => d.mag >= minMag && d.mag < maxMag);
+    
+    const countByType = magTypes.reduce((counts, type) => {
+        counts[type] = filteredData.reduce((count, d) => {
+            return d.magType === type ? count + 1 : count;
+        }, 0);
+        return counts;
+    }, {});
 
-    // Filtrar y contar datos por intervalo de magnitud y tipo de magnitud
-    const frequencies = magnitudes.map(mag => {
-        const [minMag, maxMag] = mag.slice(1, -1).split(',').map(parseFloat);
-        const filteredData = data.filter(d => d.mag >= minMag && d.mag < maxMag);
-        const countByType = {};
-        magTypes.forEach(type => {
-            countByType[type] = filteredData.filter(d => d.magType === type).length;
-        });
-        return { mag, frequencies: countByType };
-    });
+    return { mag, frequencies: countByType };
+});
+
 
     // Escala x para los intervalos de magnitud
     const xScale = d3.scaleBand()
@@ -361,6 +359,8 @@ d3.csv(SISMOS).then(data => {
         .attr("height", HEIGHT_VIS_3)
         .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
+    
+        
 
     const xScale3 = d3.scaleLinear()
         .range([0, WIDTH_VIS_3 - margin.left - margin.right]);
@@ -373,6 +373,8 @@ d3.csv(SISMOS).then(data => {
 
     xScale3.domain(d3.extent(data, d => d.mag)).nice();
     yScale3.domain(d3.extent(data, d => d.depth)).nice();
+
+    
 
     SVG3.append("g")
         .attr("class", "x-axis")
