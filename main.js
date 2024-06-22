@@ -51,9 +51,9 @@ function filterBars(filter) {
     if (filter === "Limpiar filtro") {
         bars.map(bar => bar.style.display = "block");
         texts.map(text => text.style.display = "block");
-         // Mostrar todos los círculos en el mapa
-         d3.selectAll(".sismo-circle")
-         .style("display", "block");
+        // Mostrar todos los círculos en el mapa
+        d3.selectAll(".sismo-circle")
+        .style("display", "block");
 
      const color = colors[filter];
     } else {
@@ -369,24 +369,23 @@ const frequencies = magnitudes.map(mag => {
         .attr("width", WIDTH_VIS_3)
         .attr("height", HEIGHT_VIS_3)
         .append("g")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
-    
-        
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);  
 
     const yScale3 = d3.scaleLinear()
         .domain([-150, 150])  // Rango de -150 a 150 para intervalos de 50
         .range([HEIGHT_VIS_3 - margin.top - margin.bottom, 0]);
     
     const yAxis3 = d3.axisLeft(yScale3)
-        .tickValues([-150, -100, -50, 0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650]);  // Definir los valores de las marcas deseadas
-    
+        .tickValues([-150, -100, -50, 0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650])  // Definir los valores de las marcas deseadas
+        .tickFormat(d3.format(".0f"));  // Formato de las marcas sin decimales
+
     const xScale3 = d3.scaleLinear()
         .domain([0, 10])  // Rango de 0 a 10
         .range([0, WIDTH_VIS_3 - margin.left - margin.right]);
     
     const xAxis3 = d3.axisBottom(xScale3)
-        .ticks(10);  // Mostrará marcas cada 1 unidad (0, 1, 2, ..., 10)
-    
+        .ticks(10)  // Mostrará marcas cada 1 unidad (0, 1, 2, ..., 10)
+        .tickFormat(d3.format(".0f"));  // Formato de las marcas sin decimales
 
     xScale3.domain(d3.extent(data, d => d.mag)).nice();
     yScale3.domain(d3.extent(data, d => d.depth)).nice();
@@ -425,6 +424,7 @@ SVG3.select(".x-axis")
     .attr("font-family", "Lato, sans-serif")
     .style("text-anchor", "middle")
     .text("Magnitud");
+    
 // Agregar etiqueta para el eje y
 SVG3.select(".y-axis")
     .append("text")
@@ -484,7 +484,13 @@ const circles = SVG3.selectAll("circle")
     }
 
     function actualizarDispersion(magnitudeType) {
-        const filteredData = data.filter(d => magnitudeType.includes(d.magType));
+        let filteredData;
+        if (magnitudeType.includes("limpiar")) {
+            filteredData = data;
+        }
+        else {
+            filteredData = data.filter(d => magnitudeType.includes(d.magType));
+        }
     
         xScale3.domain(d3.extent(filteredData, d => d.mag)).nice();
         yScale3.domain(d3.extent(filteredData, d => d.depth)).nice();
@@ -498,13 +504,42 @@ const circles = SVG3.selectAll("circle")
             .transition()
             .duration(1000)
             .call(yAxis3);
-    
-        circles.data(filteredData)
+
+        const circulos = SVG3.selectAll(".sismo-circulo")
+            .data(filteredData, d => d.id);
+
+        circulos.exit()
             .transition()
+            .duration(1000)
+            .attr("opacity", 0)
+            .remove();
+
+        circulos.transition()
             .duration(1000)
             .attr("cx", d => xScale3(d.mag))
             .attr("cy", d => yScale3(d.depth))
-            .attr("fill", d => colors[d.magType]);
+            .attr("fill", d => colors[d.magType])
+            .attr("opacity", 1);
+
+        circulos.enter().append("circle")
+            .attr("cx", d => xScale3(d.mag))
+            .attr("cy", d => yScale3(d.depth))
+            .attr("r", 5)
+            .attr("fill", d => colors[d.magType])
+            .attr("class", "sismo-circulo")
+            .on("mouseover", function(event, d) {
+                showTooltip3(event, d);
+                
+                d3.selectAll(".sismo-circulo")
+                    .attr("opacity", 0.2);
+                d3.select(this)
+                    .attr("opacity", 1);
+            })
+            .on("mouseout", function() {
+                hideTooltip3();
+                d3.selectAll(".sismo-circulo")
+                    .attr("opacity", 1);
+            });
     }
     // Asignar eventos de clic a los botones de magnitud
     d3.select("#btn1").on("click", () => actualizarDispersion(["md"]));
@@ -514,6 +549,7 @@ const circles = SVG3.selectAll("circle")
     d3.select("#btn5").on("click", () => actualizarDispersion(["mb"]));
     d3.select("#btn6").on("click", () => actualizarDispersion(["mww"]));
     d3.select("#btn7").on("click", () => actualizarDispersion(["mb_lg"]));
+    d3.select("#btn8").on("click", () => actualizarDispersion(["limpiar"]));
 
 }).catch(error => {
     console.error('Error cargando los datos:', error);
