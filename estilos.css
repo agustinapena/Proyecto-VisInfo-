@@ -76,6 +76,16 @@ h6{
     font-size: 15px;
 }
 
+h7{
+    font-family: 'Lato', sans-serif;
+
+    font-weight: 400;
+    font-style: normal;
+    color: #7596e3;
+    text-align: left;
+    font-size: 11px;
+}
+
 h2{
     font-family: 'Lato', sans-serif;
 

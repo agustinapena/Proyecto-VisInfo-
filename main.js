@@ -19,7 +19,9 @@ d3.csv(SISMOS).then(data => {
         latitude: parseFloat(d.latitude),
         longitude: parseFloat(d.longitude),
         mag: parseFloat(d.mag),
-        depth: parseFloat(d.depth)
+        type: parseFloat(d.magType),
+        depth: parseFloat(d.depth),
+        time: parseFloat(d.time)
     }));
 
     // Definir intervalos de magnitud y tipos de magnitud
@@ -37,6 +39,7 @@ d3.csv(SISMOS).then(data => {
         'mb': 'rgb(136, 195, 204)'
     };
 
+
     // Utilizar el método map para asignar eventos a cada botón
 buttons.map(button => {
     button.addEventListener("click", () => {
@@ -49,34 +52,90 @@ function filterBars(filter) {
     const texts = Array.from(document.querySelectorAll(".bar-text"));
 
     if (filter === "Limpiar filtro") {
-        bars.map(bar => bar.style.display = "block");
-        texts.map(text => text.style.display = "block");
+        bars.map(bar => {
+            d3.select(bar)
+                .style("display", "block")
+                .transition()
+                .duration(500)  // Duración de la transición en milisegundos
+                .style("opacity", 1);
+        });
+    
+        texts.map(text => {
+            d3.select(text)
+                .style("display", "block")
+                .transition()
+                .duration(500)
+                .style("opacity", 1);
+        });
+    
         // Mostrar todos los círculos en el mapa
         d3.selectAll(".sismo-circle")
-        .style("display", "block");
-
-     const color = colors[filter];
+            .style("display", "block")
+            .transition()
+            .duration(500)
+            .style("opacity", 1);
+    
+        const color = colors[filter];
     } else {
         const color = colors[filter];
-
+    
         bars.filter(bar => bar.getAttribute('fill') !== color)
-            .map(bar => bar.style.display = "none");
-
+            .map(bar => {
+                d3.select(bar)
+                    .transition()
+                    .duration(500)
+                    .style("opacity", 0)
+                    .on("end", function() { d3.select(this).style("display", "none"); });
+            });
+    
         bars.filter(bar => bar.getAttribute('fill') === color)
-            .map(bar => bar.style.display = "block");
-
+            .map(bar => {
+                d3.select(bar)
+                    .style("display", "block")
+                    .transition()
+                    .duration(500)
+                    .style("opacity", 1);
+            });
+    
         texts.filter(text => text.getAttribute('data-color') !== color)
-            .map(text => text.style.display = "none");
-
+            .map(text => {
+                d3.select(text)
+                    .transition()
+                    .duration(500)
+                    .style("opacity", 0)
+                    .on("end", function() { d3.select(this).style("display", "none"); });
+            });
+    
         texts.filter(text => text.getAttribute('data-color') === color)
-            .map(text => text.style.display = "block");
-        
+            .map(text => {
+                d3.select(text)
+                    .style("display", "block")
+                    .transition()
+                    .duration(500)
+                    .style("opacity", 1);
+            });
+    
         // Filtrar los círculos en el mapa según el color (magnitud) seleccionado
         d3.selectAll(".sismo-circle")
-        .attr("display", function(d) {
-            return colors[d.magType] === color ? "block" : "none";
-        });
+            .each(function(d) {
+                const circle = d3.select(this);
+                if (colors[d.magType] === color) {
+                    circle
+                        .style("display", "block")
+                        .transition()
+                        .duration(500)
+                        .style("opacity", 1);
+                } else {
+                    circle
+                        .transition()
+                        .duration(500)
+                        .style("opacity", 0)
+                        .on("end", function() { circle.style("display", "none"); });
+                }
+            });
     }
+    
+//Cuenta la cantidad de veces que se repite, este codigo se realizó con ayuda de ChatGpt
 }
 const frequencies = magnitudes.map(mag => {
     const [minMag, maxMag] = mag.slice(1, -1).split(',').map(parseFloat);
@@ -92,8 +151,9 @@ const frequencies = magnitudes.map(mag => {
     return { mag, frequencies: countByType };
 });
 
+//Visualización 1: grafico de barras agrupado 
 
-    // Escala x para los intervalos de magnitud
+// Escala x para los intervalos de magnitud
     const xScale = d3.scaleBand()
         .domain(magnitudes)
         .range([0, WIDTH_VIS_1 - margin.left - margin.right])
@@ -103,6 +163,8 @@ const frequencies = magnitudes.map(mag => {
     const maxY = d3.max(frequencies, d => d3.max(Object.values(d.frequencies)));
 
     // Escala y para la frecuencia máxima, empezando desde 0 para asegurar visibilidad de barras pequeñas
+    //Codigo Clase 08 (Diapositivas)
+
     const yScale = d3.scaleLinear()
         .domain([0, maxY])
         .nice() // Ajusta los límites del eje y para que las grillas se ajusten mejor
@@ -191,6 +253,8 @@ const frequencies = magnitudes.map(mag => {
             const frecuencia = d.count;
 
             // Actualizar el contenido de las etiquetas span en el HTML
+            //Este codigo se realizó con ayuda de las diapositivas de la Clase 03 y Tarea 2 2024-1
+
             d3.select("#detailMag").text(magType);
             d3.select("#detailIntervalo").text(intervalo);
             d3.select("#detailFrecuencia").text(frecuencia);
@@ -241,15 +305,10 @@ const frequencies = magnitudes.map(mag => {
 
 
 
-        
     
-
-
-
-
         
 
-    // Visualización 2 - Mapa
+// Visualización 2 - Mapa
     const WIDTH_VIS_2 = 1000;
     const HEIGHT_VIS_2 = 500;
 
@@ -272,10 +331,9 @@ const frequencies = magnitudes.map(mag => {
             .attr("fill", "#e0e0e0")
             .attr("stroke", "#ffffff");
     
-    // const sismosGroup = SVG2.append("g");
     const sismosGroup = mapGroup.append("g");
 
-    const radiusScale = d3.scaleSqrt() // Escala de raíz cuadrada para el tamaño del círculo
+    const radiusScale = d3.scaleSqrt() // Escala de raíz cuadrada para el tamaño del círculo, la decisión fue con el objetivo de tener una escala más proporcional al tamaño del mapa
         .domain([d3.min(data, d => d.mag), d3.max(data, d => d.mag)]) // Dominio de magnitudes
         .range([1, 5]); // Rango de tamaños de radio
 
@@ -333,6 +391,7 @@ const frequencies = magnitudes.map(mag => {
 
 
     // Añadir zoom y pan al mapa
+    //Este mapa fue realizado con ayuda de ChatGpt y StackOverflow
     SVG2.call(d3.zoom()
         .scaleExtent([1, 8])
         .on("zoom", function(event) {
@@ -352,12 +411,6 @@ const frequencies = magnitudes.map(mag => {
             mapGroup.attr("stroke-width", 1 / newScale);
         }));
     
-
-
-
-
-
-
 
 
 
@@ -438,7 +491,9 @@ SVG3.select(".y-axis")
     .style("fill", "gray")
     .text("Profundidad");
 
-  // Dentro de la sección de código para crear el gráfico de dispersión (vis-3)
+// Dentro de la sección de código para crear el gráfico de dispersión (vis-3)
+//Selecciona todos los circulos (Ayuda de stackoverflow.com)
+
 const circles = SVG3.selectAll("circle")
 .data(data)
 .enter().append("circle")
@@ -483,53 +538,52 @@ const circles = SVG3.selectAll("circle")
         d3.select(".tooltip").remove();
     }
 
-    function actualizarDispersion(magnitudeType) {
-        let filteredData;
-        if (magnitudeType.includes("limpiar")) {
-            filteredData = data;
-        }
-        else {
-            filteredData = data.filter(d => magnitudeType.includes(d.magType));
-        }
-    
-        xScale3.domain(d3.extent(filteredData, d => d.mag)).nice();
-        yScale3.domain(d3.extent(filteredData, d => d.depth)).nice();
-    
-        SVG3.select(".x-axis")
-            .transition()
-            .duration(1000)
-            .call(xAxis3);
-    
-        SVG3.select(".y-axis")
-            .transition()
-            .duration(1000)
-            .call(yAxis3);
-
-        const circulos = SVG3.selectAll(".sismo-circulo")
-            .data(filteredData, d => d.id);
-
-        circulos.exit()
-            .transition()
-            .duration(1000)
-            .attr("opacity", 0)
-            .remove();
-
-        circulos.transition()
-            .duration(1000)
-            .attr("cx", d => xScale3(d.mag))
-            .attr("cy", d => yScale3(d.depth))
-            .attr("fill", d => colors[d.magType])
-            .attr("opacity", 1);
-
-        circulos.enter().append("circle")
-            .attr("cx", d => xScale3(d.mag))
-            .attr("cy", d => yScale3(d.depth))
-            .attr("r", 5)
-            .attr("fill", d => colors[d.magType])
-            .attr("class", "sismo-circulo")
+        function actualizarDispersion(magnitudeType) {
+            let filteredData;
+            if (magnitudeType.includes("limpiar")) {
+                filteredData = data;
+            } else {
+                filteredData = data.filter(d => magnitudeType.includes(d.magType));
+            }
+        
+            xScale3.domain(d3.extent(filteredData, d => d.mag)).nice();
+            yScale3.domain(d3.extent(filteredData, d => d.depth)).nice();
+        
+            SVG3.select(".x-axis")
+                .call(xAxis3);
+        
+            SVG3.select(".y-axis")
+                .call(yAxis3);
+        
+            const circulos = SVG3.selectAll(".sismo-circulo")
+                .data(filteredData, d => d.id);
+        
+            circulos.exit()
+                .transition()
+                .duration(500)
+                .attr("opacity", 0)
+                .remove();
+        
+            circulos
+                .attr("cx", d => xScale3(d.mag))
+                .attr("cy", d => yScale3(d.depth))
+                .attr("fill", d => colors[d.magType])
+                .attr("opacity", 1);
+        
+            circulos.enter().append("circle")
+                .attr("cx", d => xScale3(d.mag))
+                .attr("cy", d => yScale3(d.depth))
+                .attr("r", 5)
+                .attr("fill", d => colors[d.magType])
+                .attr("class", "sismo-circulo")
+                .attr("opacity", 0) // Inicialmente invisible
+                .transition()
+                .duration(500)
+                .attr("opacity", 1) // Transición de entrada
+        
             .on("mouseover", function(event, d) {
                 showTooltip3(event, d);
-                
+        
                 d3.selectAll(".sismo-circulo")
                     .attr("opacity", 0.2);
                 d3.select(this)
@@ -540,7 +594,8 @@ const circles = SVG3.selectAll("circle")
                 d3.selectAll(".sismo-circulo")
                     .attr("opacity", 1);
             });
-    }
+        }
+        
     // Asignar eventos de clic a los botones de magnitud
     d3.select("#btn1").on("click", () => actualizarDispersion(["md"]));
     d3.select("#btn2").on("click", () => actualizarDispersion(["mwr"]));
