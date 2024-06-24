@@ -444,79 +444,79 @@ const frequencies = magnitudes.map(mag => {
     yScale3.domain(d3.extent(data, d => d.depth)).nice();
 
    // Crear ejes x e y con grillas y estilos
-SVG3.append("g")
-    .attr("class", "x-axis")
-    .attr("transform", `translate(0, ${HEIGHT_VIS_3 - margin.top - margin.bottom})`)
-    .call(xAxis3)
-    .selectAll(".tick line")
-    .attr("stroke", "lightgray")
-    .attr("stroke-dasharray", "2,2");
+    SVG3.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0, ${HEIGHT_VIS_3 - margin.top - margin.bottom})`)
+        .call(xAxis3)
+        .selectAll(".tick line")
+        .attr("stroke", "lightgray")
+        .attr("stroke-dasharray", "2,2");
 
-SVG3.selectAll(".domain")
-    .attr("stroke", "gray")
-    .attr("stroke-width", "1.5");
+    SVG3.selectAll(".domain")
+        .attr("stroke", "gray")
+        .attr("stroke-width", "1.5");
 
-SVG3.append("g")
-    .attr("class", "y-axis")
-    .call(yAxis3)
-    .selectAll(".tick line")
-    .attr("stroke", "lightgray")
-    .attr("stroke-dasharray", "2,2");
+    SVG3.append("g")
+        .attr("class", "y-axis")
+        .call(yAxis3)
+        .selectAll(".tick line")
+        .attr("stroke", "lightgray")
+        .attr("stroke-dasharray", "2,2");
 
-SVG3.selectAll(".domain")
-    .attr("stroke", "gray")
-    .attr("stroke-width", "1.5");
+    SVG3.selectAll(".domain")
+        .attr("stroke", "gray")
+        .attr("stroke-width", "1.5");
 
-// Agregar etiqueta para el eje x
-SVG3.select(".x-axis")
-    .append("text")
-    .attr("x", (WIDTH_VIS_3 - margin.left - margin.right) / 2)
-    .attr("y", 40)
-    .attr("fill", "gray")
-    .attr("font-size", "16px")
-    .attr("font-family", "Lato, sans-serif")
-    .style("text-anchor", "middle")
-    .text("Magnitud");
-    
-// Agregar etiqueta para el eje y
-SVG3.select(".y-axis")
-    .append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 0 - margin.left)
-    .attr("x", 0 - (HEIGHT_VIS_3 / 2))
-    .attr("dy", "1em")
-    .style("text-anchor", "middle")
-    .style("font-size", "16px")
-    .style("font-family", "Lato, sans-serif")
-    .style("fill", "gray")
-    .text("Profundidad");
+    // Agregar etiqueta para el eje x
+    SVG3.select(".x-axis")
+        .append("text")
+        .attr("x", (WIDTH_VIS_3 - margin.left - margin.right) / 2)
+        .attr("y", 40)
+        .attr("fill", "gray")
+        .attr("font-size", "16px")
+        .attr("font-family", "Lato, sans-serif")
+        .style("text-anchor", "middle")
+        .text("Magnitud");
+        
+    // Agregar etiqueta para el eje y
+    SVG3.select(".y-axis")
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (HEIGHT_VIS_3 / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("font-family", "Lato, sans-serif")
+        .style("fill", "gray")
+        .text("Profundidad");
 
 // Dentro de la sección de código para crear el gráfico de dispersión (vis-3)
 //Selecciona todos los circulos (Ayuda de stackoverflow.com)
 
-const circles = SVG3.selectAll("circle")
-.data(data)
-.enter().append("circle")
-.attr("cx", d => xScale3(d.mag))
-.attr("cy", d => yScale3(d.depth))
-.attr("r", 5)
-.attr("fill", d => colors[d.magType])
-.attr("opacity", 0.7)
-.attr("class", "sismo-circulo")
-.on("mouseover", function(event, d) {
-    showTooltip3(event, d);
-    
-    // Opacar todos los círculos excepto el seleccionado
-    d3.selectAll(".sismo-circulo")
-        .attr("opacity", 0.2);
-    d3.select(this)
-        .attr("opacity", 1);
-})
-.on("mouseout", function() {
-    hideTooltip3();
-    d3.selectAll(".sismo-circulo")
-        .attr("opacity", 1);
-});
+    const circles = SVG3.selectAll("circle")
+        .data(data)
+        .enter().append("circle")
+        .attr("cx", d => xScale3(d.mag))
+        .attr("cy", d => yScale3(d.depth))
+        .attr("r", 5)
+        .attr("fill", d => colors[d.magType])
+        .attr("opacity", 0.7)
+        .attr("class", "sismo-circulo")
+        .on("mouseover", function(event, d) {
+            showTooltip3(event, d);
+            
+            // Opacar todos los círculos excepto el seleccionado
+            d3.selectAll(".sismo-circulo")
+                .attr("opacity", 0.2);
+            d3.select(this)
+                .attr("opacity", 1);
+        })
+        .on("mouseout", function() {
+            hideTooltip3();
+            d3.selectAll(".sismo-circulo")
+                .attr("opacity", 1);
+        });
 
     function showTooltip3(event, d) {
         const tooltip = d3.select("#vis-3").append("div")
@@ -538,52 +538,44 @@ const circles = SVG3.selectAll("circle")
         d3.select(".tooltip").remove();
     }
 
-        function actualizarDispersion(magnitudeType) {
-            let filteredData;
-            if (magnitudeType.includes("limpiar")) {
-                filteredData = data;
-            } else {
-                filteredData = data.filter(d => magnitudeType.includes(d.magType));
-            }
-        
-            xScale3.domain(d3.extent(filteredData, d => d.mag)).nice();
-            yScale3.domain(d3.extent(filteredData, d => d.depth)).nice();
-        
-            SVG3.select(".x-axis")
-                .call(xAxis3);
-        
-            SVG3.select(".y-axis")
-                .call(yAxis3);
-        
-            const circulos = SVG3.selectAll(".sismo-circulo")
-                .data(filteredData, d => d.id);
-        
-            circulos.exit()
-                .transition()
-                .duration(500)
-                .attr("opacity", 0)
-                .remove();
-        
-            circulos
-                .attr("cx", d => xScale3(d.mag))
-                .attr("cy", d => yScale3(d.depth))
-                .attr("fill", d => colors[d.magType])
-                .attr("opacity", 1);
-        
-            circulos.enter().append("circle")
-                .attr("cx", d => xScale3(d.mag))
-                .attr("cy", d => yScale3(d.depth))
-                .attr("r", 5)
-                .attr("fill", d => colors[d.magType])
-                .attr("class", "sismo-circulo")
-                .attr("opacity", 0) // Inicialmente invisible
-                .transition()
-                .duration(500)
-                .attr("opacity", 1) // Transición de entrada
-        
+    function actualizarDispersion(magnitudeType) {
+        let filteredData;
+        if (magnitudeType.includes("limpiar")) {
+            filteredData = data;
+        } else {
+            filteredData = data.filter(d => magnitudeType.includes(d.magType));
+        }
+    
+        xScale3.domain(d3.extent(filteredData, d => d.mag)).nice();
+        yScale3.domain(d3.extent(filteredData, d => d.depth)).nice();
+    
+        SVG3.select(".x-axis")
+            .call(xAxis3);
+    
+        SVG3.select(".y-axis")
+            .call(yAxis3);
+    
+        const circulos = SVG3.selectAll(".sismo-circulo")
+            .data(filteredData, d => d.id);
+    
+        circulos.exit()
+            .transition()
+            .duration(500)
+            .attr("opacity", 0)
+            .remove();
+    
+        circulos.enter().append("circle")
+            .attr("cx", d => xScale3(d.mag))
+            .attr("cy", d => yScale3(d.depth))
+            .attr("r", 5)
+            .attr("fill", d => colors[d.magType])
+            .attr("class", "sismo-circulo")
+            .attr("opacity", 0) // Inicialmente invisible
+            .merge(circulos)
             .on("mouseover", function(event, d) {
                 showTooltip3(event, d);
-        
+                
+                // Opacar todos los círculos excepto el seleccionado
                 d3.selectAll(".sismo-circulo")
                     .attr("opacity", 0.2);
                 d3.select(this)
@@ -593,8 +585,14 @@ const circles = SVG3.selectAll("circle")
                 hideTooltip3();
                 d3.selectAll(".sismo-circulo")
                     .attr("opacity", 1);
-            });
-        }
+            })
+            .transition()
+            .duration(500)
+            .attr("cx", d => xScale3(d.mag))
+            .attr("cy", d => yScale3(d.depth))
+            .attr("fill", d => colors[d.magType])
+            .attr("opacity", 1) // Transición de entrada
+    }
         
     // Asignar eventos de clic a los botones de magnitud
     d3.select("#btn1").on("click", () => actualizarDispersion(["md"]));
