@@ -154,159 +154,157 @@ const frequencies = magnitudes.map(mag => {
 //Visualización 1: grafico de barras agrupado 
 
 // Escala x para los intervalos de magnitud
-    const xScale = d3.scaleBand()
-        .domain(magnitudes)
-        .range([0, WIDTH_VIS_1 - margin.left - margin.right])
-        .padding(0.2);
+   // Escala x para los intervalos de magnitud
+const xScale = d3.scaleBand()
+.domain(magnitudes)
+.range([0, WIDTH_VIS_1 - margin.left - margin.right])
+.padding(0.2);
 
-    // Obtener la frecuencia máxima para ajustar la escala y
-    const maxY = d3.max(frequencies, d => d3.max(Object.values(d.frequencies)));
+// Obtener la frecuencia máxima para ajustar la escala y
+const maxY = d3.max(frequencies, d => d3.max(Object.values(d.frequencies)));
 
-    // Escala y para la frecuencia máxima, empezando desde 0 para asegurar visibilidad de barras pequeñas
-    //Codigo Clase 08 (Diapositivas)
+// Escala y para la frecuencia máxima, empezando desde 0 para asegurar visibilidad de barras pequeñas
+const yScale = d3.scaleLinear()
+.domain([0, maxY])
+.nice() // Ajusta los límites del eje y para que las grillas se ajusten mejor
+.range([HEIGHT_VIS_1 - margin.top - margin.bottom, 0]);
 
-    const yScale = d3.scaleLinear()
-        .domain([0, maxY])
-        .nice() // Ajusta los límites del eje y para que las grillas se ajusten mejor
-        .range([HEIGHT_VIS_1 - margin.top - margin.bottom, 0]);
+// Crear ejes x e y con grillas
+SVG1.append("g")
+.attr("class", "x-axis")
+.attr("transform", `translate(0, ${HEIGHT_VIS_1 - margin.top - margin.bottom})`)
+.call(d3.axisBottom(xScale))
+.append("text") // Agregar texto para la etiqueta del eje x
+.attr("x", (WIDTH_VIS_1 - margin.left - margin.right) / 2)
+.attr("y", 40) // Ajustar la posición vertical del texto
+.attr("fill", "gray")
+.attr("font-size", "16px")
+.attr("font-family", "Lato, sans-serif")
+.style("text-anchor", "middle")
+.text("Intervalos de Magnitud");
 
-    // Crear ejes x e y con grillas
-    SVG1.append("g")
-        .attr("class", "x-axis")
-        .attr("transform", `translate(0, ${HEIGHT_VIS_1 - margin.top - margin.bottom})`)
-        .call(d3.axisBottom(xScale))
-        .append("text") // Agregar texto para la etiqueta del eje x
-        .attr("x", (WIDTH_VIS_1 - margin.left - margin.right) / 2)
-        .attr("y", 40) // Ajustar la posición vertical del texto
-        .attr("fill", "gray")
-        .attr("font-size", "16px")
-        .attr("font-family", "Lato, sans-serif")
-        .style("text-anchor", "middle")
-        .text("Intervalos de Magnitud");
+SVG1.append("g")
+.attr("class", "y-axis")
+.call(d3.axisLeft(yScale).ticks(5).tickSizeInner(-WIDTH_VIS_1 + margin.left + margin.right)) // Determina el número de ticks en el eje y y activa las grillas
+.append("text") // Agregar texto para la etiqueta del eje y
+.attr("transform", "rotate(-90)")
+.attr("y", 0 - margin.left)
+.attr("x", 0 - (HEIGHT_VIS_1 / 2))
+.attr("dy", "1em")
+.style("text-anchor", "middle")
+.style("font-size", "16px")
+.style("font-family", "Lato, sans-serif")
+.style("fill", "gray") // Cambiar color del texto del eje y a gris
+.text("Frecuencia");
 
-    SVG1.append("g")
-        .attr("class", "y-axis")
-        .call(d3.axisLeft(yScale).ticks(5).tickSizeInner(-WIDTH_VIS_1 + margin.left + margin.right)) // Determina el número de ticks en el eje y y activa las grillas
-        .append("text") // Agregar texto para la etiqueta del eje y
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x", 0 - (HEIGHT_VIS_1 / 2))
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .style("font-size", "16px")
-        .style("font-family", "Lato, sans-serif")
-        .style("fill", "gray") // Cambiar color del texto del eje y a gris
-        .text("Frecuencia");
+// Estilo de los textos del eje x
+SVG1.selectAll(".x-axis text")
+.style("font-size", "16px")
+.style("font-family", "Lato, sans-serif")
+.style("fill", "gray"); // Cambiar color del texto del eje x a gris
 
-    // Estilo de los textos del eje x
-    SVG1.selectAll(".x-axis text")
-        .style("font-size", "16px")
-        .style("font-family", "Lato, sans-serif")
-        .style("fill", "gray"); // Cambiar color del texto del eje x a gris
+// Estilo de los textos del eje y
+SVG1.selectAll(".y-axis text")
+.style("font-size", "12px")
+.style("font-family", "Lato, sans-serif")
+.style("fill", "gray"); // Cambiar color del texto del eje y a gris
 
-    // Estilo de las líneas de los ejes y grillas
-    SVG1.selectAll(".tick line")
-        .attr("stroke", "lightgray")
-        .attr("stroke-dasharray", "2,2");
+// Estilo de las líneas de los ejes y grillas
+SVG1.selectAll(".tick line")
+.attr("stroke", "lightgray")
+.attr("stroke-dasharray", "2,2");
 
-    // Estilo de la línea del eje x
-    SVG1.selectAll(".domain")
-        .attr("stroke", "gray") // Cambiar color de la línea del eje x a gris
-        .attr("stroke-width", "1.5");
+// Estilo de la línea del eje x
+SVG1.selectAll(".domain")
+.attr("stroke", "gray") // Cambiar color de la línea del eje x a gris
+.attr("stroke-width", "1.5");
 
-    // Estilo de la línea del eje y
-    SVG1.selectAll(".y-axis .domain")
-        .attr("stroke", "gray") // Cambiar color de la línea del eje y a gris
-        .attr("stroke-width", "1.5");
+// Estilo de la línea del eje y
+SVG1.selectAll(".y-axis .domain")
+.attr("stroke", "gray") // Cambiar color de la línea del eje y a gris
+.attr("stroke-width", "1.5");
 
-    // Título del gráfico
-    SVG1.append("text")
-        .attr("x", (WIDTH_VIS_1 / 2) - 50)
-        .attr("y", 0 - (margin.top / 2))
-        .attr("text-anchor", "middle")
-        .style("font-size", "16px")
-        .text("Magnitudes y frecuencias de sismos")
-        .style("font-family", "Lato, sans-serif") // Cambia la familia de fuentes
-        .style("fill", "#7596e3");
+// Título del gráfico
+SVG1.append("text")
+.attr("x", (WIDTH_VIS_1 / 2) - 50)
+.attr("y", 0 - (margin.top / 2))
+.attr("text-anchor", "middle")
+.style("font-size", "16px")
+.text("Magnitudes y frecuencias de sismos")
+.style("font-family", "Lato, sans-serif") // Cambia la familia de fuentes
+.style("fill", "#7596e3");
 
-    // Crear grupos para cada intervalo de magnitud
-    const intervalGroups = SVG1.selectAll(".interval")
-        .data(frequencies)
-        .enter().append("g")
-        .attr("class", "interval")
-        .attr("transform", d => `translate(${xScale(d.mag)}, 0)`);
+// Crear grupos para cada intervalo de magnitud
+const intervalGroups = SVG1.selectAll(".interval")
+.data(frequencies)
+.enter().append("g")
+.attr("class", "interval")
+.attr("transform", d => `translate(${xScale(d.mag)}, 0)`);
 
-    // Crear las barras dentro de cada grupo de intervalo
-    intervalGroups.selectAll("rect")
-        .data(d => magTypes.map(type => ({ type, count: d.frequencies[type], color: colors[type] })))
-        .enter().append("rect")
-        .attr("x", (d, i) => (xScale.bandwidth() / magTypes.length) * i) // Ajustar posición x de cada barra
-        .attr("y", d => yScale(d.count)) // Ajustar posición y de cada barra según la frecuencia
-        .attr("width", xScale.bandwidth() / magTypes.length)
-        .attr("height", d => HEIGHT_VIS_1 - margin.top - margin.bottom - yScale(d.count)) // Altura de la barra basada en la escala y
-        .attr("fill", d => d.color)
-        .attr("class", "bar")
-        .attr("data-color", d => d.color)
-        .on("mouseover", function(event, d) {
-            const magType = d.type;
-            const intervalo = d3.select(this.parentNode).datum().mag;
-            const frecuencia = d.count;
+// Crear las barras dentro de cada grupo de intervalo
+intervalGroups.selectAll("rect")
+.data(d => magTypes.map(type => ({ type, count: d.frequencies[type], color: colors[type] })))
+.enter().append("rect")
+.attr("x", (d, i) => (xScale.bandwidth() / magTypes.length) * i) // Ajustar posición x de cada barra
+.attr("y", d => yScale(d.count)) // Ajustar posición y de cada barra según la frecuencia
+.attr("width", xScale.bandwidth() / magTypes.length)
+.attr("height", d => HEIGHT_VIS_1 - margin.top - margin.bottom - yScale(d.count)) // Altura de la barra basada en la escala y
+.attr("fill", d => d.color)
+.attr("class", "bar")
+.attr("data-color", d => d.color)
+.on("mouseover", function(event, d) {
+    const magType = d.type;
+    const intervalo = d3.select(this.parentNode).datum().mag;
+    const frecuencia = d.count;
 
-            // Actualizar el contenido de las etiquetas span en el HTML
-            //Este codigo se realizó con ayuda de las diapositivas de la Clase 03 y Tarea 2 2024-1
+    // Actualizar el contenido de las etiquetas span en el HTML
+    d3.select("#detailMag").text(magType);
+    d3.select("#detailIntervalo").text(intervalo);
+    d3.select("#detailFrecuencia").text(frecuencia);
 
-            d3.select("#detailMag").text(magType);
-            d3.select("#detailIntervalo").text(intervalo);
-            d3.select("#detailFrecuencia").text(frecuencia);
-
-            // Cambiar la opacidad de las barras no seleccionadas
-            SVG1.selectAll("rect")
-                .attr("opacity", function(dRect) {
-                    return dRect.mag === intervalo ? 1 : 0.2; // Mantener opacidad completa solo de las barras del mismo intervalo
-                });
-
-            // Mantener la opacidad completa de la barra seleccionada
-            d3.select(this)
-                .attr("opacity", 1);
-
-            // Cambiar la opacidad de los textos correspondientes
-            intervalGroups.selectAll("text")
-                .attr("opacity", function(dText) {
-                    return dText.type === magType && d3.select(this.parentNode).datum().mag === intervalo ? 1 : 0.2;
-                });
-        })
-        .on("mouseout", function(event, d) {
-            // Restaurar la opacidad original de todas las barras y textos al quitar el mouse
-            SVG1.selectAll("rect")
-                .attr("opacity", 1);
-            intervalGroups.selectAll("text")
-                .attr("opacity", 1);
-
-            // Limpiar el contenido de las etiquetas span
-            d3.select("#detailMag").text("");
-            d3.select("#detailIntervalo").text("");
-            d3.select("#detailFrecuencia").text("");
+    // Cambiar la opacidad de las barras no seleccionadas
+    SVG1.selectAll("rect")
+        .attr("opacity", function(dRect) {
+            return dRect.mag === intervalo ? 1 : 0.2; // Mantener opacidad completa solo de las barras del mismo intervalo
         });
 
-    // Agregar etiquetas de valor encima de las barras
+    // Mantener la opacidad completa de la barra seleccionada
+    d3.select(this)
+        .attr("opacity", 1);
+
+    // Cambiar la opacidad de los textos correspondientes
     intervalGroups.selectAll("text")
-        .data(d => magTypes.map(type => ({ type, count: d.frequencies[type], color: colors[type] })))
-        .enter().append("text")
-        .attr("x", (d, i) => (xScale.bandwidth() / magTypes.length) * i + (xScale.bandwidth() / magTypes.length) / 2) // Centrar el texto en la barra
-        .attr("y", d => yScale(d.count) - 5) // Posicionar el texto justo encima de la barra
-        .attr("text-anchor", "middle")
-        .style("font-size", "12px")
-        .style("font-family", "Lato, sans-serif") // Cambia la familia de fuentes
-        .style("fill", "gray")
-        .attr("class", "bar-text")
-        .attr("data-color", d => d.color)
-        .text(d => d.count);
+        .attr("opacity", function(dText) {
+            return dText.type === magType && d3.select(this.parentNode).datum().mag === intervalo ? 1 : 0.2;
+        });
+})
+.on("mouseout", function(event, d) {
+    // Restaurar la opacidad original de todas las barras y textos al quitar el mouse
+    SVG1.selectAll("rect")
+        .attr("opacity", 1);
+    intervalGroups.selectAll("text")
+        .attr("opacity", 1);
 
+    // Limpiar el contenido de las etiquetas span
+    d3.select("#detailMag").text("");
+    d3.select("#detailIntervalo").text("");
+    d3.select("#detailFrecuencia").text("");
+});
 
+// Agregar etiquetas de valor encima de las barras
+intervalGroups.selectAll("text")
+.data(d => magTypes.map(type => ({ type, count: d.frequencies[type], color: colors[type] })))
+.enter().append("text")
+.attr("x", (d, i) => (xScale.bandwidth() / magTypes.length) * i + (xScale.bandwidth() / magTypes.length) / 2) // Centrar el texto en la barra
+.attr("y", d => yScale(d.count) - 5) // Posicionar el texto justo encima de la barra
+.attr("text-anchor", "middle")
+.style("font-size", "12px")
+.style("font-family", "Lato, sans-serif") // Cambia la familia de fuentes
+.style("fill", "gray")
+.attr("class", "bar-text")
+.attr("data-color", d => d.color)
+.text(d => d.count);
 
-
-    
-        
 
 // Visualización 2 - Mapa
     const WIDTH_VIS_2 = 1000;
@@ -414,109 +412,121 @@ const frequencies = magnitudes.map(mag => {
 
 
 
-    // Visualización 3 - Gráfico de dispersión
-    const WIDTH_VIS_3 = 1000;
-    const HEIGHT_VIS_3 = 500;
+   // Visualización 3 - Gráfico de dispersión
+const WIDTH_VIS_3 = 1000;
+const HEIGHT_VIS_3 = 500;
 
-    const SVG3 = d3.select("#vis-3").append("svg")
-        .attr("width", WIDTH_VIS_3)
-        .attr("height", HEIGHT_VIS_3)
-        .append("g")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);  
+const SVG3 = d3.select("#vis-3").append("svg")
+    .attr("width", WIDTH_VIS_3)
+    .attr("height", HEIGHT_VIS_3)
+    .append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    const yScale3 = d3.scaleLinear()
-        .domain([-150, 150])  // Rango de -150 a 150 para intervalos de 50
-        .range([HEIGHT_VIS_3 - margin.top - margin.bottom, 0]);
+const yScale3 = d3.scaleLinear()
+    .domain([-150, 150])  // Rango de -150 a 150 para intervalos de 50
+    .range([HEIGHT_VIS_3 - margin.top - margin.bottom, 0]);
+
+const yAxis3 = d3.axisLeft(yScale3)
+    .tickValues([-150, -100, -50, 0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650])  // Definir los valores de las marcas deseadas
+    .tickFormat(d3.format(".0f"));  // Formato de las marcas sin decimales
+
+const xScale3 = d3.scaleLinear()
+    .domain([0, 10])  // Rango de 0 a 10
+    .range([0, WIDTH_VIS_3 - margin.left - margin.right]);
+
+const xAxis3 = d3.axisBottom(xScale3)
+    //.ticks(10)  // Mostrará marcas cada 1 unidad (0, 1, 2, ..., 10)
+    //.tickFormat(d3.format(".0f"));  // Formato de las marcas sin decimales
+
+xScale3.domain(d3.extent(data, d => d.mag)).nice();
+yScale3.domain(d3.extent(data, d => d.depth)).nice();
+
+// Crear ejes x e y con grillas y estilos
+SVG3.append("g")
+    .attr("class", "x-axis")
+    .attr("transform", `translate(0, ${HEIGHT_VIS_3 - margin.top - margin.bottom})`)
+    .call(xAxis3)
+    .selectAll(".tick line")
+    .attr("stroke", "lightgray")
+    .attr("stroke-dasharray", "2,2");
+
+SVG3.selectAll(".domain")
+    .attr("stroke", "gray")
+    .attr("stroke-width", "1.5");
+
+SVG3.append("g")
+    .attr("class", "y-axis")
+    .call(yAxis3)
+    .selectAll(".tick line")
+    .attr("stroke", "lightgray")
+    .attr("stroke-dasharray", "2,2");
+
+SVG3.selectAll(".domain")
+    .attr("stroke", "gray")
+    .attr("stroke-width", "1.5");
+
+// Estilo de los textos del eje x
+SVG3.selectAll(".x-axis text")
+    .style("font-size", "16px")
+    .style("font-family", "Lato, sans-serif")
+    .style("fill", "gray"); // Cambiar color del texto del eje x a gris
+
+// Estilo de los textos del eje y
+SVG3.selectAll(".y-axis text")
+    .style("font-size", "12px")
+    .style("font-family", "Lato, sans-serif")
+    .style("fill", "gray"); // Cambiar color del texto del eje y a gris
+
+// Agregar etiqueta para el eje x
+SVG3.select(".x-axis")
+    .append("text")
+    .attr("x", (WIDTH_VIS_3 - margin.left - margin.right) / 2)
+    .attr("y", 40)
+    .attr("fill", "gray")
+    .attr("font-size", "16px")
+    .attr("font-family", "Lato, sans-serif")
+    .style("text-anchor", "middle")
+    .text("Magnitud");
     
-    const yAxis3 = d3.axisLeft(yScale3)
-        .tickValues([-150, -100, -50, 0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650])  // Definir los valores de las marcas deseadas
-        .tickFormat(d3.format(".0f"));  // Formato de las marcas sin decimales
-
-    const xScale3 = d3.scaleLinear()
-        .domain([0, 10])  // Rango de 0 a 10
-        .range([0, WIDTH_VIS_3 - margin.left - margin.right]);
-    
-    const xAxis3 = d3.axisBottom(xScale3)
-        .ticks(10)  // Mostrará marcas cada 1 unidad (0, 1, 2, ..., 10)
-        .tickFormat(d3.format(".0f"));  // Formato de las marcas sin decimales
-
-    xScale3.domain(d3.extent(data, d => d.mag)).nice();
-    yScale3.domain(d3.extent(data, d => d.depth)).nice();
-
-   // Crear ejes x e y con grillas y estilos
-    SVG3.append("g")
-        .attr("class", "x-axis")
-        .attr("transform", `translate(0, ${HEIGHT_VIS_3 - margin.top - margin.bottom})`)
-        .call(xAxis3)
-        .selectAll(".tick line")
-        .attr("stroke", "lightgray")
-        .attr("stroke-dasharray", "2,2");
-
-    SVG3.selectAll(".domain")
-        .attr("stroke", "gray")
-        .attr("stroke-width", "1.5");
-
-    SVG3.append("g")
-        .attr("class", "y-axis")
-        .call(yAxis3)
-        .selectAll(".tick line")
-        .attr("stroke", "lightgray")
-        .attr("stroke-dasharray", "2,2");
-
-    SVG3.selectAll(".domain")
-        .attr("stroke", "gray")
-        .attr("stroke-width", "1.5");
-
-    // Agregar etiqueta para el eje x
-    SVG3.select(".x-axis")
-        .append("text")
-        .attr("x", (WIDTH_VIS_3 - margin.left - margin.right) / 2)
-        .attr("y", 40)
-        .attr("fill", "gray")
-        .attr("font-size", "16px")
-        .attr("font-family", "Lato, sans-serif")
-        .style("text-anchor", "middle")
-        .text("Magnitud");
-        
-    // Agregar etiqueta para el eje y
-    SVG3.select(".y-axis")
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x", 0 - (HEIGHT_VIS_3 / 2))
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .style("font-size", "16px")
-        .style("font-family", "Lato, sans-serif")
-        .style("fill", "gray")
-        .text("Profundidad");
+// Agregar etiqueta para el eje y
+SVG3.select(".y-axis")
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x", 0 - (HEIGHT_VIS_3 / 2))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .style("font-size", "14px")
+    .style("font-family", "Lato, sans-serif")
+    .style("fill", "gray")
+    .text("Profundidad (m)");
 
 // Dentro de la sección de código para crear el gráfico de dispersión (vis-3)
-//Selecciona todos los circulos (Ayuda de stackoverflow.com)
+// Selecciona todos los círculos (Ayuda de stackoverflow.com)
+const circles = SVG3.selectAll("circle")
+    .data(data)
+    .enter().append("circle")
+    .attr("cx", d => xScale3(d.mag))
+    .attr("cy", d => yScale3(d.depth))
+    .attr("r", 5)
+    .attr("fill", d => colors[d.magType])
+    .attr("opacity", 0.7)
+    .attr("class", "sismo-circulo")
+    .on("mouseover", function(event, d) {
+        showTooltip3(event, d);
+        
+        // Opacar todos los círculos excepto el seleccionado
+        d3.selectAll(".sismo-circulo")
+            .attr("opacity", 0.2);
+        d3.select(this)
+            .attr("opacity", 1);
+    })
+    .on("mouseout", function() {
+        hideTooltip3();
+        d3.selectAll(".sismo-circulo")
+            .attr("opacity", 1);
+    });
 
-    const circles = SVG3.selectAll("circle")
-        .data(data)
-        .enter().append("circle")
-        .attr("cx", d => xScale3(d.mag))
-        .attr("cy", d => yScale3(d.depth))
-        .attr("r", 5)
-        .attr("fill", d => colors[d.magType])
-        .attr("opacity", 0.7)
-        .attr("class", "sismo-circulo")
-        .on("mouseover", function(event, d) {
-            showTooltip3(event, d);
-            
-            // Opacar todos los círculos excepto el seleccionado
-            d3.selectAll(".sismo-circulo")
-                .attr("opacity", 0.2);
-            d3.select(this)
-                .attr("opacity", 1);
-        })
-        .on("mouseout", function() {
-            hideTooltip3();
-            d3.selectAll(".sismo-circulo")
-                .attr("opacity", 1);
-        });
 
     function showTooltip3(event, d) {
         const tooltip = d3.select("#vis-3").append("div")
