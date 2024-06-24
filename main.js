@@ -565,6 +565,18 @@ const circles = SVG3.selectAll("circle")
         SVG3.select(".y-axis")
             .call(yAxis3);
     
+        // Reaplicar estilo a los textos del eje x
+        SVG3.selectAll(".x-axis text")
+            .style("font-size", "16px")
+            .style("font-family", "Lato, sans-serif")
+            .style("fill", "gray"); // Cambiar color del texto del eje x a gris
+    
+        // Reaplicar estilo a los textos del eje y
+        SVG3.selectAll(".y-axis text")
+            .style("font-size", "12px")
+            .style("font-family", "Lato, sans-serif")
+            .style("fill", "gray"); // Cambiar color del texto del eje y a gris
+    
         const circulos = SVG3.selectAll(".sismo-circulo")
             .data(filteredData, d => d.id);
     
